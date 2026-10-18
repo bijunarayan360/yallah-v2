@@ -1,0 +1,651 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#fcfaf7"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Yallah"><link rel="apple-touch-icon" href="img/icon.png"><link rel="icon" href="img/icon.png"><title>Yallah App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: phones get the app full screen; laptops see a phone frame beside a short journey menu. One light app look, warm white with Yallah gold. */
+:root {
+  --page: #f3efe8; --page-ink: #1b1a17; --page-muted: #6d675d; --page-line: #e3dccf; --page-card: #fffdf9;
+  --app-bg: #fcfaf7; --card: #ffffff; --ink: #17171a; --muted: #747882; --faint: #a3a7ae; --line: #efebe5;
+  --gold: #f5b82e; --gold-soft: #fdf0cf; --gold-deep: #8a6408; --chip: #f4f1ec; --red: #c4382f;
+  --sans: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #15130f; --page-ink: #f3efe7; --page-muted: #a9a294; --page-line: #2e2a22; --page-card: #1d1a15; color-scheme: dark } }
+:root[data-theme="dark"] { --page: #15130f; --page-ink: #f3efe7; --page-muted: #a9a294; --page-line: #2e2a22; --page-card: #1d1a15; color-scheme: dark }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--page); color: var(--page-ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- shell ---------- */
+.stage { height: 100%; display: grid; grid-template-columns: minmax(250px, 300px) auto; justify-content: center; align-items: center; gap: 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px; }
+.rail { display: flex; flex-direction: column; gap: 18px; max-height: calc(100vh - 48px); }
+.rail img { width: 120px; }
+.rail h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; text-wrap: balance; }
+.rail h1 em { font-style: normal; color: var(--gold); }
+.rail p { margin: 0; color: var(--page-muted); font-size: 14px; line-height: 1.5; }
+.jlist { display: flex; flex-direction: column; overflow-y: auto; border-top: 1px solid var(--page-line); }
+.jlist button { display: flex; align-items: center; gap: 12px; padding: 11px 4px; background: none; border: 0; border-bottom: 1px solid var(--page-line); text-align: left; cursor: pointer; font-weight: 600; font-size: 14.5px; color: var(--page-ink); }
+.jlist button svg { width: 20px; height: 20px; color: var(--page-muted); }
+.jlist button:hover svg, .jlist button.on svg { color: var(--gold); }
+.railfoot { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pill { border: 1px solid var(--page-line); background: var(--page-card); color: var(--page-ink); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.seg { display: inline-flex; border: 1px solid var(--page-line); background: var(--page-card); border-radius: 999px; padding: 3px; }
+.seg button { border: 0; background: none; padding: 6px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 800; cursor: pointer; color: var(--page-muted); }
+.seg button[aria-pressed="true"] { background: var(--gold); color: #261900; }
+
+.device { width: calc(390px * var(--s, 1) + 24px * var(--s, 1)); height: calc(844px * var(--s, 1) + 24px * var(--s, 1)); position: relative; }
+.bezel { position: absolute; left: 0; top: 0; width: 414px; height: 868px; transform: scale(var(--s, 1)); transform-origin: 0 0; background: #121212; border-radius: 60px; padding: 12px;
+  box-shadow: 0 30px 70px -24px rgba(50, 35, 0, .4); }
+#app { position: relative; width: 390px; height: 844px; border-radius: 48px; overflow: hidden; background: var(--app-bg); color: var(--ink); font-family: var(--sans); --top: 50px; --bot: 26px; }
+.fakebar { position: absolute; top: 0; left: 0; right: 0; height: 50px; padding: 16px 30px 0; display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; z-index: 20; pointer-events: none; color: var(--ink); }
+.fakebar .notch { position: absolute; left: 50%; top: 11px; transform: translateX(-50%); width: 118px; height: 33px; border-radius: 20px; background: #000; }
+.handle { display: none; }
+.backdrop { display: none; }
+@media (max-width: 760px), (max-height: 600px) and (pointer: coarse) {
+  .stage { display: block; padding: 0; }
+  .rail { display: none; }
+  .device { position: fixed; inset: 0; width: auto; height: auto; }
+  .bezel { position: static; transform: none; width: 100%; height: 100%; padding: 0; border-radius: 0; box-shadow: none; background: var(--app-bg); }
+  #app { width: 100%; height: 100%; border-radius: 0; --top: max(14px, env(safe-area-inset-top, 0px)); --bot: max(12px, env(safe-area-inset-bottom, 0px)); }
+  .fakebar { display: none; }
+  .handle { display: grid; place-items: center; position: fixed; z-index: 60; right: env(safe-area-inset-right, 0px); top: 38%; width: 12px; height: 44px; border-radius: 8px 0 0 8px; border: 0; background: rgba(23, 23, 26, .16); color: transparent; cursor: pointer; }
+  .backdrop.show { display: block; position: fixed; inset: 0; z-index: 70; background: rgba(10, 8, 4, .45); }
+  .rail.sheet { display: flex; position: fixed; z-index: 80; left: 0; right: 0; bottom: 0; max-height: 84vh; background: var(--page-card); border-radius: 24px 24px 0 0;
+    padding: 20px max(18px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); }
+}
+
+/* ---------- app ---------- */
+.scr { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--app-bg); animation: enter .22s ease-out; }
+@keyframes enter { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.scr.fade { animation: fadein .3s ease-out; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.top { padding: calc(var(--top) + 4px) 20px 10px; display: flex; align-items: center; gap: 12px; position: relative; z-index: 3; }
+.top .t { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 22px 20px; display: flex; flex-direction: column; gap: 18px; scrollbar-width: none; position: relative; }
+.body::-webkit-scrollbar { display: none; }
+.foot { padding: 10px 22px calc(var(--bot) + 6px); display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.nav + .foot, .foot:has(+ .nav) { padding-bottom: 10px; }
+.nav { display: flex; padding: 8px 14px calc(var(--bot) - 4px); background: var(--card); border-top: 1px solid var(--line); }
+.nav button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; font-size: 11px; font-weight: 600; color: var(--faint); cursor: pointer; padding: 4px 0; }
+.nav button.on { color: var(--ink); }
+.nav button.on .ic { color: var(--gold-deep); }
+.nav button.on::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+
+.ic { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.round { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line); flex: none; cursor: pointer; padding: 0; }
+.h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.12; margin: 0; text-wrap: balance; }
+.h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.025em; margin: 0; }
+.h3 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.sub { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0; }
+.small { font-size: 12.5px; color: var(--muted); }
+.label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .02em; }
+.gold { color: var(--gold); }
+.num { font-variant-numeric: tabular-nums; }
+.center { text-align: center; align-items: center; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; border-radius: 18px; border: 0; background: var(--gold); color: #1d1500; font-weight: 700; font-size: 16px; cursor: pointer; }
+.btn.dark { background: var(--ink); color: #fff; }
+.btn.ghost { background: var(--chip); color: var(--ink); }
+.btn.sm { min-height: 48px; font-size: 15px; }
+.link { background: none; border: 0; color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; padding: 10px; align-self: center; }
+.link.red { color: var(--red); }
+.field { display: flex; align-items: center; gap: 12px; min-height: 56px; border-radius: 18px; background: var(--card); border: 1.5px solid var(--line); padding: 0 16px; font-size: 16px; width: 100%; text-align: left; cursor: pointer; color: var(--ink); }
+.field.on { border-color: var(--gold); box-shadow: 0 0 0 4px var(--gold-soft); }
+.field .ph { color: var(--muted); }
+.row { display: flex; align-items: center; gap: 14px; }
+.grow { flex: 1; min-width: 0; }
+.list { display: flex; flex-direction: column; }
+.li { display: flex; align-items: center; gap: 14px; padding: 14px 0; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: left; width: 100%; cursor: pointer; color: var(--ink); }
+.li:last-child { border-bottom: 0; }
+.tile { width: 42px; height: 42px; border-radius: 14px; background: var(--chip); display: grid; place-items: center; color: var(--ink); flex: none; }
+.tile.gold { background: var(--gold-soft); color: var(--gold-deep); }
+.tile.solid { background: var(--gold); color: #1d1500; }
+.chev { color: var(--faint); }
+.card { background: var(--card); border-radius: 22px; box-shadow: 0 0 0 1px var(--line) inset; padding: 16px; }
+.soft { background: var(--chip); border-radius: 20px; padding: 14px 16px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { padding: 9px 14px; border-radius: 999px; background: var(--chip); font-size: 13.5px; font-weight: 600; border: 0; cursor: pointer; color: var(--ink); }
+.chip.on { background: var(--ink); color: #fff; }
+.glow { position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(245, 184, 46, .30), rgba(245, 184, 46, .1) 55%, rgba(245, 184, 46, 0)); z-index: 0; }
+.rel { position: relative; z-index: 1; }
+.svc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.svc button { border: 0; background: var(--card); border-radius: 22px; min-height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 600; box-shadow: 0 0 0 1px var(--line) inset; color: var(--ink); padding: 8px 4px; }
+.svc .ic { width: 28px; height: 28px; stroke-width: 1.5; }
+.svc button.hot { background: var(--gold-soft); box-shadow: none; }
+.balance { display: flex; align-items: center; gap: 12px; background: var(--ink); color: #fff; border-radius: 22px; padding: 18px 20px; }
+.balance .mini { border: 0; background: var(--gold); color: #1d1500; border-radius: 14px; min-height: 42px; padding: 0 14px; font-weight: 700; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+
+/* maps + sheets */
+.map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.floattop { position: absolute; left: 0; right: 0; top: 0; padding: calc(var(--top) + 4px) 20px 0; display: flex; justify-content: space-between; z-index: 3; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--card); border-radius: 28px 28px 0 0; box-shadow: 0 -12px 40px rgba(30, 20, 0, .08); padding: 12px 22px calc(var(--bot) + 8px); z-index: 4; display: flex; flex-direction: column; gap: 12px; }
+.grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 4px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 11px 14px; border-radius: 18px; border: 1.5px solid transparent; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--ink); }
+.opt.on { border-color: var(--gold); background: #fffbf1; }
+.opt.on .tile { background: var(--gold); color: #1d1500; }
+.pulse { position: absolute; border-radius: 50%; border: 1.5px solid rgba(245, 184, 46, .6); animation: ping 2.4s ease-out infinite; }
+@keyframes ping { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+.bar { height: 4px; border-radius: 2px; background: var(--chip); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 40%; background: var(--gold); border-radius: 2px; animation: slide 1.6s ease-in-out infinite; }
+.bar.fill i { width: 100%; transform-origin: left; animation: fill var(--dur, 5s) linear forwards; }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.spinner { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(245, 184, 46, .45); background: radial-gradient(circle, #fff 55%, var(--gold-soft)); }
+.spinner i { width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(245, 184, 46, .25); border-top-color: var(--gold); animation: spin 1.1s linear infinite; position: relative; }
+.spinner i::after { content: ""; position: absolute; inset: 0; margin: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.okmark { width: 80px; height: 80px; border-radius: 50%; background: var(--gold); display: grid; place-items: center; color: #1d1500; animation: pop .35s ease-out; }
+.okmark .ic { width: 38px; height: 38px; stroke-width: 2.2; }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.stars { display: flex; gap: 10px; justify-content: center; }
+.stars button { border: 0; background: none; padding: 0; cursor: pointer; }
+.stars svg { width: 36px; height: 36px; }
+.steps { display: flex; flex-direction: column; }
+.step { display: flex; gap: 14px; align-items: flex-start; padding-bottom: 18px; position: relative; }
+.step::before { content: ""; position: absolute; left: 11px; top: 26px; bottom: 2px; width: 2px; background: var(--line); }
+.step:last-child::before { display: none; }
+.step .d { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--card); flex: none; display: grid; place-items: center; }
+.step.done .d { background: var(--gold); border-color: var(--gold); color: #1d1500; }
+.step.done .d .ic { width: 14px; height: 14px; stroke-width: 3; }
+.step.now .d { border-color: var(--gold); box-shadow: 0 0 0 5px var(--gold-soft); }
+.step.now .d::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+.step .h3 { margin-top: 2px; }
+.step:not(.done):not(.now) .h3 { color: var(--faint); font-weight: 600; }
+.food { border-radius: 22px; overflow: hidden; background: var(--card); box-shadow: 0 0 0 1px var(--line) inset; border: 0; padding: 0; text-align: left; cursor: pointer; color: var(--ink); width: 100%; }
+.food .art { height: 116px; position: relative; overflow: hidden; }
+.food .meta { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 3px; }
+.qty { display: flex; align-items: center; gap: 10px; }
+.qty button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.qty button.add { background: var(--gold); border-color: var(--gold); color: #1d1500; }
+.qty .ic { width: 16px; height: 16px; stroke-width: 2.2; }
+.cartbar { display: flex; align-items: center; gap: 12px; background: var(--ink); color: #fff; border-radius: 18px; min-height: 58px; padding: 0 18px; border: 0; cursor: pointer; width: 100%; font-weight: 700; font-size: 15px; }
+.cartbar .n { width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: #1d1500; display: grid; place-items: center; font-size: 13px; }
+.seats { display: grid; grid-template-columns: repeat(2, 44px) 24px repeat(2, 44px); gap: 10px; justify-content: center; }
+.seat { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; padding: 0; }
+.seat.taken { background: var(--chip); border-color: var(--chip); color: var(--faint); cursor: default; }
+.seat.on { background: var(--gold); border-color: var(--gold); color: #1d1500; }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.keypad button { min-height: 56px; border: 0; background: none; font-size: 24px; font-weight: 600; border-radius: 16px; cursor: pointer; color: var(--ink); }
+.keypad button:active { background: var(--chip); }
+.pins { display: flex; gap: 14px; justify-content: center; }
+.pins i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--faint); }
+.pins i.on { background: var(--ink); border-color: var(--ink); }
+.otp { display: flex; gap: 12px; }
+.otp span { flex: 1; height: 62px; border-radius: 16px; background: var(--card); border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 24px; font-weight: 800; }
+.otp span.on { border-color: var(--gold); box-shadow: 0 0 0 4px var(--gold-soft); }
+.bubble { max-width: 78%; padding: 11px 14px; border-radius: 18px; font-size: 14.5px; line-height: 1.4; }
+.bubble.me { align-self: flex-end; background: var(--gold); color: #1d1500; border-bottom-right-radius: 6px; }
+.bubble.them { align-self: flex-start; background: var(--chip); border-bottom-left-radius: 6px; }
+.toggle { width: 46px; height: 28px; border-radius: 14px; background: var(--chip); border: 0; position: relative; cursor: pointer; flex: none; padding: 0; }
+.toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); transition: left .15s; }
+.toggle.on { background: var(--gold); }
+.toggle.on::after { left: 21px; }
+.radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); flex: none; }
+.radio.on { border: 7px solid var(--gold); }
+.amount { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; text-align: center; }
+.toast { position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; z-index: 30; white-space: nowrap; animation: fadein .2s; }
+@media (prefers-reduced-motion: reduce) { .scr, .pulse, .spinner i, .bar i, .okmark { animation: none !important; } .bar.fill i { transform: none; } }
+</style>
+
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16V11.5l2-5h10l2 5V16"/><path d="M3.5 16h17v2.5h-17z"/><circle cx="7.5" cy="16" r="1.6"/><circle cx="16.5" cy="16" r="1.6"/><path d="M5 11.5h14"/></symbol>
+  <symbol id="i-moto" viewBox="0 0 24 24"><circle cx="5.5" cy="16.5" r="3"/><circle cx="18.5" cy="16.5" r="3"/><path d="M8.5 16.5h5l3-6h-4l-2 3H7"/><path d="M14 7h3l1.5 3.5"/></symbol>
+  <symbol id="i-pool" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M3 19c.5-3 2.5-5 5-5s4.5 2 5 5"/><path d="M13.5 19c.4-2.4 1.6-4 3-4s2.6 1.6 3 4"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></symbol>
+  <symbol id="i-food" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M4.5 12a7.5 7.5 0 0 0 15 0"/><path d="M12 4v2"/><path d="M5 19h14"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20h-5v-5.5H9V20H4z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="13" rx="3"/><path d="M3.5 9.5h17"/><circle cx="16" cy="14" r="1"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a10 10 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-mobile" viewBox="0 0 24 24"><rect x="6.5" y="3" width="11" height="18" rx="2.5"/><path d="M10.5 18h3"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 19 19 5M9 5h10v10"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-work" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V5.5h6v2"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 24 24"><path d="M3 13.5 21 7l-4.5 13-3.5-6.5z"/><path d="m13 13.5 8-6.5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.8 2.5 5.2 5.7.7-4.2 3.9 1.1 5.6L12 16.4l-5.1 2.8L8 13.6 3.8 9.7l5.7-.7z"/></symbol>
+  <symbol id="i-bus" viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="14" rx="3"/><path d="M4.5 11h15M8 17.5V20M16 17.5V20"/><circle cx="8" cy="14.3" r=".8"/><circle cx="16" cy="14.3" r=".8"/></symbol>
+  <symbol id="i-school" viewBox="0 0 24 24"><path d="M3 9 12 4.5 21 9l-9 4.5z"/><path d="M7 11v4.5c1.5 1.3 3 2 5 2s3.5-.7 5-2V11"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l2 2"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 7.5h2M13 7.5h2M9 11h2M13 11h2M10.5 20.5V16h3v4.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5h4"/></symbol>
+  <symbol id="i-lang" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.5 3.5 5.5 3.5 8.5s-1 6-3.5 8.5c-2.5-2.5-3.5-5.5-3.5-8.5s1-6 3.5-8.5z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.5a2.3 2.3 0 0 1 4.4.8c0 1.6-2.2 1.8-2.2 3.4"/><circle cx="12" cy="16.8" r=".5"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4.5H6.5v15H14M10 12h10M16.5 8.5 20 12l-3.5 3.5"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 14.5h4"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="17.5" cy="6" r="2.5"/><circle cx="6.5" cy="12" r="2.5"/><circle cx="17.5" cy="18" r="2.5"/><path d="m8.7 10.8 6.6-3.6M8.7 13.2l6.6 3.6"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3.5v4M16 3.5v4"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M4 18v-2M9 18v-5M14 18V9M19 18V5" stroke-width="2.6"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 30 20"><rect width="30" height="20" rx="3" fill="#2a8cd8"/><path d="M0 20 30 0" stroke="#f5d10b" stroke-width="7"/><path d="M0 20 30 0" stroke="#d6261f" stroke-width="3.5"/><path d="m6 3 1.2 2.6 2.8.3-2.1 1.9.6 2.8L6 9.2 3.5 10.6l.6-2.8L2 5.9l2.8-.3z" fill="#f5d10b"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></symbol>
+  <g id="mapbase">
+    <rect width="390" height="844" fill="#f1ede6"/>
+    <path d="M-20 140 L420 90 M-20 330 L420 300 M-20 520 L420 470 M90 -20 L130 860 M270 -20 L240 860" stroke="#ffffff" stroke-width="16" fill="none"/>
+    <path d="M-20 230 L420 200 M-20 420 L420 390 M185 -20 L180 860 M340 -20 L320 860 M20 -20 L50 860" stroke="#ffffff" stroke-width="7" fill="none"/>
+    <rect x="145" y="345" width="70" height="40" rx="10" fill="#ebe4d8"/>
+    <rect x="258" y="120" width="60" height="70" rx="12" fill="#ebe4d8"/>
+    <path d="M-20 660 C 80 620, 160 720, 420 630 L420 860 L-20 860 Z" fill="#e6eef0"/>
+  </g>
+  <g id="route">
+    <path d="M118 150 L121 302 L246 292 L254 455" stroke="#f5b82e" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="118" cy="150" r="9" fill="#17171a"/><circle cx="118" cy="150" r="3.5" fill="#fff"/>
+    <circle cx="254" cy="455" r="12" fill="#f5b82e"/><circle cx="254" cy="455" r="4.5" fill="#17171a"/>
+  </g>
+</svg>
+
+<div class="stage">
+  <aside class="rail" id="rail" aria-label="Journeys">
+    <img src="data:image/png;base64,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" alt="Yallah">
+    <h1 id="railTitle">Prototype <em>Yallah</em></h1>
+    <p id="railSub">Touchez l'écran comme dans la vraie application.</p>
+    <div class="jlist" id="jlist"></div>
+    <div class="railfoot">
+      <div class="seg" role="group" aria-label="Language"><button type="button" data-lang="fr" aria-pressed="true">FR</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+      <button type="button" class="pill" id="restart">↺ <span id="restartL">Recommencer</span></button>
+    </div>
+  </aside>
+  <div class="device" id="device"><div class="bezel"><div id="app" aria-live="polite"><div class="fakebar"><span>09:41</span><span class="notch"></span><span>●●●</span></div></div></div></div>
+</div>
+<button type="button" class="handle" id="handle" aria-label="Menu"><svg class="ic" style="width:14px;height:14px"><use href="#i-menu"/></svg></button>
+<div class="backdrop" id="backdrop"></div>
+
+<script>
+const LOGO = document.querySelector('.rail img').src;
+const st = { lang: 'fr', mode: 'taxi', ride: 'taxi', cart: {}, rate: 4, tip: 1, seat: '14', amount: 25000, method: 'mpesa', pin: '', size: 'm', poolDay: 0, chauffeur: true, req: null, ok: null, receipt: null, chatWith: 'driver' };
+let current = null, stack = [], timer = null;
+const L = (fr, en) => st.lang === 'en' ? en : fr;
+const ic = (n, s = '') => `<svg class="ic" ${s}><use href="#i-${n}"/></svg>`;
+const fmt = n => n.toLocaleString('fr-FR').replace(/ | /g, ' ');
+const cdf = n => 'CDF ' + fmt(n);
+
+const DRIVER = {
+  taxi: { name: 'Patrick K.', first: 'Patrick', ini: 'PK', car: 'Toyota Corolla', plate: '4392AA', price: 14000, eta: 4, icon: 'car' },
+  moto: { name: 'Dieudonné M.', first: 'Dieudonné', ini: 'DM', car: 'TVS Apache 160', plate: '2480AA', price: 6500, eta: 3, icon: 'moto' },
+  comfort: { name: 'Joseph T.', first: 'Joseph', ini: 'JT', car: 'Toyota Prado', plate: '7710AB', price: 24000, eta: 7, icon: 'car' }
+};
+const MENU = [
+  { id: 'poulet', fr: 'Poulet Mayo', en: 'Mayo Chicken', p: 22000 },
+  { id: 'liboke', fr: 'Liboke de capitaine', en: 'Capitaine Liboke', p: 28000 },
+  { id: 'brochette', fr: 'Brochettes', en: 'Skewers', p: 14000 },
+  { id: 'jus', fr: 'Jus de gingembre', en: 'Ginger juice', p: 3000 }
+];
+const CARS = [
+  { id: 'prado', name: 'Toyota Prado', seats: 7, p: 280000, col: '#e9e2d6' },
+  { id: 'corolla', name: 'Toyota Corolla', seats: 5, p: 120000, col: '#f3e6c8' },
+  { id: 'hiace', name: 'Toyota Hiace', seats: 14, p: 200000, col: '#e4e9ec' }
+];
+
+/* ---------- building blocks ---------- */
+function header(title, o = {}) {
+  const back = o.back === false ? '' : `<button class="round" data-back aria-label="${L('Retour', 'Back')}">${ic(o.close ? 'x' : 'back')}</button>`;
+  const home = o.home === false ? '' : `<button class="round" data-go="home" aria-label="${L('Accueil', 'Home')}">${ic('home')}</button>`;
+  return `<div class="top">${back}<div class="t">${title}</div>${o.right || home}</div>`;
+}
+function nav(on) {
+  const it = [['home', 'home', L('Accueil', 'Home')], ['activity', 'clock', L('Activité', 'Activity')], ['wallet', 'wallet', L('Portefeuille', 'Wallet')], ['profile', 'user', L('Profil', 'Profile')]];
+  return `<nav class="nav">${it.map(([k, i, l]) => `<button data-go="${k}" data-reset class="${k === on ? 'on' : ''}">${ic(i)}<span>${l}</span></button>`).join('')}</nav>`;
+}
+const map = (extra = '') => `<svg class="map" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice"><use href="#mapbase"/>${extra}</svg>`;
+const li = (tile, title, sub, go, right = ic('chev', 'class="ic chev"'), tileCls = '') =>
+  `<button class="li" ${go ? `data-go="${go}"` : ''}><div class="tile ${tileCls}">${ic(tile)}</div><div class="grow"><div class="h3">${title}</div>${sub ? `<div class="small">${sub}</div>` : ''}</div>${right}</button>`;
+const stars = n => [1, 2, 3, 4, 5].map(i => `<button data-act="rate" data-v="${i}" aria-label="${i}"><svg viewBox="0 0 24 24"><use href="#i-star" fill="${i <= n ? '#f5b82e' : 'none'}" stroke="${i <= n ? '#f5b82e' : '#d8d2c6'}" stroke-width="1.6"/></svg></button>`).join('');
+const foodArt = (a, b, dish) => `<div class="art" style="background:linear-gradient(135deg,${a},${b})"><svg viewBox="0 0 120 80" style="position:absolute;right:16px;bottom:-6px;width:150px">${dish}</svg></div>`;
+const DISH1 = '<ellipse cx="60" cy="58" rx="54" ry="16" fill="#fff8e6"/><ellipse cx="60" cy="52" rx="40" ry="11" fill="#e48b2c"/><circle cx="44" cy="46" r="7" fill="#c8601f"/><circle cx="62" cy="44" r="8" fill="#d97a2a"/><circle cx="78" cy="48" r="6" fill="#9c4c1a"/>';
+const DISH2 = '<ellipse cx="60" cy="58" rx="54" ry="16" fill="#fff"/><path d="M24 52c8-14 64-14 72 0z" fill="#e2b45e"/><path d="M30 48c10-6 50-6 60 0" stroke="#b5452b" stroke-width="4" fill="none"/>';
+const DISH3 = '<ellipse cx="60" cy="58" rx="54" ry="16" fill="#fff"/><path d="M30 50h60" stroke="#8a4a1c" stroke-width="7" stroke-linecap="round"/><circle cx="40" cy="50" r="6" fill="#b85c24"/><circle cx="58" cy="50" r="6" fill="#c96a2a"/><circle cx="76" cy="50" r="6" fill="#a24f1d"/>';
+const carArt = col => `<svg viewBox="0 0 200 90" style="width:100%;height:100%"><rect width="200" height="90" fill="${col}"/><g transform="translate(40 26)"><path d="M10 40V28l14-16h62l20 16h8v12z" fill="#17171a"/><path d="M30 14h22v13H22zM57 14h26l14 13H57z" fill="#cfd6db"/><circle cx="30" cy="42" r="9" fill="#17171a" stroke="#fff" stroke-width="4"/><circle cx="96" cy="42" r="9" fill="#17171a" stroke="#fff" stroke-width="4"/></g></svg>`;
+const qr = () => { let s = ''; const seed = [5, 9, 3, 12, 7, 1, 14, 6, 10, 2, 13, 8, 4, 11]; for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) { const f = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13); const v = f ? ((x % 6 === 0 || y % 6 === 0 || (x > 1 && x < 5 && y > 1 && y < 5)) || (x > 13 && (x === 14 || x === 20 || y === 0 || y === 6 || (x > 15 && x < 19 && y > 1 && y < 5))) || (y > 13 && (y === 14 || y === 20 || x === 0 || x === 6 || (x > 1 && x < 5 && y > 15 && y < 19)))) : ((x * seed[y % 14] + y * 3) % 5 < 2); if (v && !(f && x > 13 && y < 7 && !(x === 14 || x === 20 || y === 0 || y === 6 || (x > 15 && x < 19 && y > 1 && y < 5))) && !(f && y > 13 && x < 7 && !(y === 14 || y === 20 || x === 0 || x === 6 || (x > 1 && x < 5 && y > 15 && y < 19))) && !(f && x < 7 && y < 7 && !(x === 0 || x === 6 || y === 0 || y === 6 || (x > 1 && x < 5 && y > 1 && y < 5)))) s += `<rect x="${x}" y="${y}" width="1" height="1"/>`; } return `<svg viewBox="-1 -1 23 23" style="width:180px;height:180px" fill="#17171a">${s}</svg>`; };
+const ok = (o) => { st.ok = o; return 'ok'; };
+
+/* ---------- screens ---------- */
+const S = {};
+S.splash = () => `<div class="scr fade">
+  <div class="glow" style="width:540px;height:540px;left:-75px;top:260px"></div><div class="glow" style="width:300px;height:220px;left:45px;top:70px;opacity:.7"></div>
+  <div class="body rel center" style="padding-top:calc(var(--top) + 60px);gap:0">
+    <img src="${LOGO}" alt="Yallah" style="width:212px">
+    <div style="margin:auto 0;padding:0 18px"><h1 class="h1" style="font-size:32px">${L('Votre quotidien,', 'Your daily life,')}<br><span class="gold">${L('simplifié.', 'made simple.')}</span></h1>
+    <p class="sub" style="margin-top:14px;font-size:16px">${L('Le cœur du mouvement, dans une seule application.', 'The heartbeat of movement, in one app.')}</p></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:24px;padding-bottom:calc(var(--bot) + 10px)">
+      <div style="display:flex;gap:7px;align-items:center;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:#8b8f97;flex-wrap:wrap;justify-content:center">${[L('TAXI', 'TAXI'), L('MOTOS', 'MOTOS'), L('COVOITURAGE', 'CARPOOL'), L('COLIS', 'PARCELS'), L('NOURRITURE', 'FOOD')].map(x => `<span>${x}</span>`).join('<i style="width:5px;height:5px;border-radius:50%;background:var(--gold)"></i>')}</div>
+      <div class="spinner"><i></i></div>
+      <div style="display:flex;gap:8px;align-items:center;background:var(--chip);border-radius:999px;padding:9px 16px;font-size:13px;color:var(--muted)">${ic('shield', 'style="width:18px;height:18px;color:var(--gold)"')}${L('République démocratique du Congo', 'Democratic Republic of the Congo')}</div>
+    </div></div></div>`;
+S.splash.auto = ['login', 2800];
+
+S.login = () => `<div class="scr">
+  <div class="glow" style="width:440px;height:320px;left:-25px;top:-50px;opacity:.8"></div>
+  <div class="body rel" style="padding-top:calc(var(--top) + 30px)">
+    <img src="${LOGO}" alt="Yallah" style="width:120px">
+    <div style="margin-top:40px"><h1 class="h1">${L('Bienvenue', 'Welcome')}</h1><p class="sub" style="margin-top:8px">${L('Entrez votre numéro de téléphone.', 'Enter your phone number.')}</p></div>
+    <div class="field on"><svg viewBox="0 0 30 20" width="26" height="18" style="border-radius:3px"><use href="#i-flag"/></svg><b>+243</b><span style="width:1px;height:24px;background:var(--line)"></span><span class="num" style="font-weight:600;letter-spacing:.04em">82 441 9080</span></div>
+  </div>
+  <div class="foot"><button class="btn" data-go="otp">${L('Continuer', 'Continue')} ${ic('arrow')}</button><span class="small" style="text-align:center">${L('Un code vous sera envoyé par SMS.', "We'll text you a code.")}</span></div></div>`;
+
+S.otp = () => `<div class="scr">${header('', { home: false })}
+  <div class="body"><div><h1 class="h1">${L('Code de vérification', 'Verification code')}</h1><p class="sub" style="margin-top:8px">${L('Envoyé au', 'Sent to')} +243 82 441 9080</p></div>
+  <div class="otp"><span>5</span><span>8</span><span>2</span><span class="on">4</span></div>
+  <button class="link" style="align-self:flex-start;padding-left:0">${L('Renvoyer le code', 'Resend code')}</button></div>
+  <div class="foot"><button class="btn" data-go="home" data-reset>${L('Vérifier', 'Verify')}</button></div></div>`;
+
+S.home = () => `<div class="scr">
+  <div class="top"><div class="grow"><div class="small">${L('Bonjour', 'Good morning')}</div><div class="h2">Alain</div></div>
+    <button class="round" data-go="notifs" aria-label="Notifications">${ic('bell')}</button>
+    <button class="round" data-go="profile" data-reset style="background:var(--gold-soft);border:0;font-weight:800;color:var(--gold-deep)">AM</button></div>
+  <div class="body">
+    <button class="field" data-go="dest" data-mode="taxi"><span class="ph" style="display:flex;gap:12px;align-items:center">${ic('search')}${L('Où allez-vous ?', 'Where to?')}</span></button>
+    <div class="svc">
+      <button class="hot" data-go="dest" data-mode="taxi">${ic('car')}<span>Taxi</span></button>
+      <button data-go="dest" data-mode="moto">${ic('moto')}<span>Moto</span></button>
+      <button data-go="pool">${ic('pool')}<span>${L('Covoiturage', 'Carpool')}</span></button>
+      <button data-go="parcel">${ic('box')}<span>${L('Colis', 'Parcel')}</span></button>
+      <button data-go="food">${ic('food')}<span>${L('Repas', 'Food')}</span></button>
+      <button data-go="more">${ic('grid')}<span>${L('Plus', 'More')}</span></button>
+    </div>
+    <div class="balance"><div class="grow"><div style="font-size:12.5px;color:#b9bcc2">${L('Solde Yallah Pay', 'Yallah Pay balance')}</div><div class="num" style="font-size:22px;font-weight:800;margin-top:2px">${cdf(85000)}</div></div>
+      <button class="mini" data-go="topup">${ic('plus', 'style="width:18px;height:18px"')}${L('Recharger', 'Top up')}</button></div>
+    <div><div class="h3">${L('Récents', 'Recent')}</div><div class="list">
+      ${li('home', L('Maison', 'Home'), 'Ngaliema', 'choose')}
+      ${li('work', L('Bureau', 'Office'), 'Gombe', 'choose')}</div></div>
+  </div>${nav('home')}</div>`;
+
+S.notifs = () => `<div class="scr">${header('Notifications')}<div class="body"><div class="list">
+  ${li('car', L('Votre chauffeur arrive', 'Your driver is coming'), L('Il y a 2 min', '2 min ago'), 'driver', '', 'gold')}
+  ${li('food', L('Commande livrée', 'Order delivered'), L('Hier', 'Yesterday'), null, '')}
+  ${li('wallet', L('Recharge réussie', 'Top-up successful'), L('Hier', 'Yesterday'), null, '')}</div></div>${nav('')}</div>`;
+
+/* ride */
+S.dest = () => `<div class="scr">${header(L('Où allez-vous ?', 'Where to?'))}
+  <div class="body"><div style="display:flex;gap:14px"><div style="display:flex;flex-direction:column;align-items:center;padding:22px 0"><i style="width:10px;height:10px;border-radius:50%;border:2.5px solid var(--ink)"></i><i style="width:2px;flex:1;background:var(--line);margin:4px 0"></i><i style="width:10px;height:10px;border-radius:3px;background:var(--gold)"></i></div>
+    <div class="grow" style="display:flex;flex-direction:column;gap:10px"><div class="field" style="min-height:52px">Pullman, Gombe</div><div class="field on" style="min-height:52px;font-weight:600">Silikin Village</div></div></div>
+  <div class="list">${li('pin', 'Silikin Village', 'Ngaliema · 7,4 km', 'choose', '', 'gold')}${li('home', L('Maison', 'Home'), 'Ngaliema', 'choose', '')}${li('work', L('Bureau', 'Office'), 'Crown Tower, Gombe', 'choose', '')}${li('plane', L('Aéroport de N\'djili', 'N\'djili Airport'), 'FIH', 'choose', '')}</div></div>${nav('home')}</div>`;
+
+S.choose = () => { const o = [['moto', 'moto', 'Moto', 6500, 3], ['taxi', 'car', 'Taxi', 14000, 4], ['comfort', 'car', L('Confort', 'Comfort'), 24000, 7]];
+  const sel = o.find(x => x[0] === st.ride);
+  return `<div class="scr">${map('<use href="#route"/>')}<div class="floattop"><button class="round" data-back aria-label="Back">${ic('back')}</button><button class="round" data-go="home" data-reset aria-label="Home">${ic('home')}</button></div>
+  <div class="sheet"><div class="grab"></div><h2 class="h2">${L('Choisissez un trajet', 'Choose a ride')}</h2>
+  <div>${o.map(([k, i, n, p, m]) => `<button class="opt ${k === st.ride ? 'on' : ''}" data-act="ride" data-v="${k}"><div class="tile">${ic(i)}</div><div class="grow"><div class="h3">${n}</div><div class="small">${m} min</div></div><div class="h3 num">${cdf(p)}</div></button>`).join('')}</div>
+  <div class="row" style="padding:0 4px">${ic('wallet', 'style="color:var(--gold-deep)"')}<span class="h3 grow" style="font-weight:600">Yallah Pay</span>${ic('chev', 'class="ic chev"')}</div>
+  <button class="btn" data-go="search">${L('Confirmer', 'Confirm')} ${sel[2]}</button></div></div>`; };
+
+S.search = () => `<div class="scr fade">${map()}<div class="pulse" style="width:230px;height:230px;left:80px;top:210px"></div><div class="pulse" style="width:230px;height:230px;left:80px;top:210px;animation-delay:1.2s"></div>
+  <div style="position:absolute;left:173px;top:303px;width:44px;height:44px;border-radius:50%;background:var(--ink);display:grid;place-items:center;color:var(--gold);box-shadow:0 0 0 8px rgba(23,23,26,.08)">${ic('pin')}</div>
+  <div class="sheet center"><div class="grab"></div><h2 class="h2">${L('Recherche d\'un chauffeur', 'Finding a driver')}</h2><p class="sub">${L('Quelques secondes.', 'Just a few seconds.')}</p><div class="bar" style="width:100%"><i></i></div>
+  <button class="link" data-go="home" data-reset>${L('Annuler', 'Cancel')}</button></div></div>`;
+S.search.auto = ['driver', 3200];
+
+S.driver = () => { const d = DRIVER[st.ride];
+  return `<div class="scr">${map(`<use href="#route"/><g transform="translate(150 286)"><rect width="30" height="18" rx="6" fill="#17171a"/></g>`)}<div class="floattop"><button class="round" data-go="home" data-reset aria-label="Home">${ic('home')}</button><button class="round" data-go="safety" aria-label="Safety">${ic('shield')}</button></div>
+  <div class="sheet"><div class="grab"></div>
+  <div class="row"><div class="grow"><h2 class="h2">${L(`${d.first} arrive`, `${d.first} is coming`)}</h2><div class="small" style="margin-top:2px">${L(`dans ${d.eta} min`, `in ${d.eta} min`)}</div></div>
+    <div style="text-align:center;background:var(--gold-soft);border-radius:14px;padding:6px 12px"><div style="font-size:10.5px;font-weight:700;color:var(--gold-deep);letter-spacing:.06em">PIN</div><div class="num" style="font-weight:800;font-size:18px;letter-spacing:.08em">7824</div></div></div>
+  <div class="row soft"><div class="round" style="width:50px;height:50px;background:#e9e2d6;border:0;font-weight:800">${d.ini}</div><div class="grow"><div class="h3">${d.name}</div><div class="small"><span style="color:var(--gold-deep)">★</span> 4,9 · ${d.car}</div></div><div class="num" style="background:#fff;border-radius:10px;padding:6px 10px;font-weight:700;font-size:13px">${d.plate}</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn ghost sm" data-act="toast" data-v="${L('Appel en cours…', 'Calling…')}">${ic('phone')}${L('Appeler', 'Call')}</button><button class="btn ghost sm" data-go="chat" data-chat="driver">${ic('chat')}Message</button></div>
+  <button class="btn" data-go="trip">${L('Suivre le trajet', 'Track the ride')}</button>
+  <button class="link red" data-go="cancel">${L('Annuler la course', 'Cancel ride')}</button></div></div>`; };
+
+S.trip = () => { const d = DRIVER[st.ride];
+  return `<div class="scr">${map(`<use href="#route"/><g transform="translate(232 330)"><rect width="30" height="18" rx="6" fill="#17171a"/></g>`)}<div class="floattop"><button class="round" data-go="home" data-reset aria-label="Home">${ic('home')}</button><button class="round" data-go="safety" aria-label="Safety">${ic('shield')}</button></div>
+  <div class="sheet"><div class="grab"></div><div class="row"><div class="grow"><h2 class="h2">${L('En route', 'On the way')}</h2><div class="small" style="margin-top:2px">Silikin Village · ${L('arrivée', 'arrival')} 14:18</div></div><div class="h2 num">12 min</div></div>
+  <div class="bar fill" style="--dur:6s"><i></i></div>
+  <div class="row soft"><div class="round" style="width:44px;height:44px;background:#e9e2d6;border:0;font-weight:800">${d.ini}</div><div class="grow"><div class="h3">${d.name}</div><div class="small">${d.car}</div></div>
+  <button class="round" data-act="toast" data-v="${L('Lien de suivi copié', 'Tracking link copied')}" aria-label="Share">${ic('share')}</button></div></div></div>`; };
+S.trip.auto = ['done', 6200];
+
+S.done = () => { const d = DRIVER[st.ride];
+  return `<div class="scr fade"><div class="glow" style="width:440px;height:360px;left:-25px;top:40px"></div>
+  <div class="body rel center" style="padding-top:calc(var(--top) + 40px);gap:10px"><div class="okmark">${ic('check')}</div>
+  <h1 class="h1" style="margin-top:12px">${L('Vous êtes arrivé', "You've arrived")}</h1><div class="num" style="font-size:34px;font-weight:800">${cdf(d.price)}</div><div class="small">Yallah Pay</div>
+  <div style="width:100%;height:1px;background:var(--line);margin:18px 0 10px"></div><div class="h3">${L(`Notez ${d.first}`, `Rate ${d.first}`)}</div><div class="stars">${stars(st.rate)}</div>
+  <div class="chips" style="justify-content:center;margin-top:8px">${[L('Sans pourboire', 'No tip'), '1 000', '2 000'].map((x, i) => `<button class="chip ${i === st.tip ? 'on' : ''}" data-act="tip" data-v="${i}">${x}</button>`).join('')}</div></div>
+  <div class="foot"><button class="btn" data-go="home" data-reset>${L('Terminer', 'Done')}</button></div></div>`; };
+
+S.cancel = () => `<div class="scr">${header(L('Annuler la course', 'Cancel ride'), { close: true })}
+  <div class="body"><p class="sub">${L('Pourquoi annulez-vous ?', 'Why are you cancelling?')}</p>
+  <div class="chips" style="flex-direction:column;align-items:stretch">${[L('Le chauffeur est trop loin', 'Driver is too far'), L('J\'ai changé d\'avis', 'I changed my mind'), L('Mauvaise adresse', 'Wrong address')].map((x, i) => `<button class="chip ${i === 0 ? 'on' : ''}" data-act="pick" style="text-align:left;padding:14px 16px;border-radius:16px">${x}</button>`).join('')}</div>
+  <div class="soft row"><span class="grow">${L('Frais d\'annulation', 'Cancellation fee')}</span><b class="num">CDF 0</b></div></div>
+  <div class="foot"><button class="btn dark" data-go="${ok({ t: ['Course annulée', 'Ride cancelled'], s: ['Aucun frais', 'No fee'], b: 'home' })}">${L('Oui, annuler', 'Yes, cancel')}</button><button class="link" data-back>${L('Garder la course', 'Keep my ride')}</button></div></div>`;
+
+S.chat = () => { const d = DRIVER[st.ride]; const sup = st.chatWith === 'support';
+  return `<div class="scr">${header(sup ? L('Assistance', 'Support') : d.name)}
+  <div class="body" style="gap:10px;justify-content:flex-end">
+  ${sup ? `<div class="bubble them">${L('Bonjour Alain, comment pouvons-nous aider ?', 'Hi Alain, how can we help?')}</div>` : `<div class="bubble them">${L('Je suis devant l\'entrée principale.', "I'm at the main entrance.")}</div><div class="bubble me">${L('J\'arrive dans 2 minutes.', 'Coming in 2 minutes.')}</div><div class="bubble them">${L('D\'accord, merci.', 'OK, thanks.')}</div>`}</div>
+  <div class="foot"><div class="chips">${(sup ? [L('Remboursement', 'Refund'), L('Objet perdu', 'Lost item')] : [L('J\'arrive', 'On my way'), L('Où êtes-vous ?', 'Where are you?')]).map(x => `<button class="chip" data-act="toast" data-v="${L('Envoyé', 'Sent')}">${x}</button>`).join('')}</div>
+  <div class="field" style="cursor:text"><span class="ph grow">${L('Écrire un message', 'Write a message')}</span><span class="tile solid" style="width:36px;height:36px;border-radius:12px">${ic('send', 'style="width:18px;height:18px"')}</span></div></div></div>`; };
+
+S.safety = () => `<div class="scr">${header(L('Sécurité', 'Safety'))}<div class="body">
+  <div class="list">${li('share', L('Partager mon trajet', 'Share my ride'), L('Avec un proche', 'With someone you trust'), null)}${li('user', L('Contacts d\'urgence', 'Emergency contacts'), '2', null)}${li('help', L('Assistance 24/7', '24/7 support'), null, 'help')}</div></div>
+  <div class="foot"><button class="btn dark" data-act="toast" data-v="${L('Alerte envoyée', 'Alert sent')}">${ic('shield')} SOS</button></div></div>`;
+
+/* carpool */
+S.pool = () => `<div class="scr">${header(L('Covoiturage', 'Carpool'))}<div class="body">
+  <div style="display:flex;flex-direction:column;gap:10px"><div class="field">${ic('pin')}Kinshasa</div><div class="field on">${ic('pin', 'style="color:var(--gold-deep)"')}<b>Matadi</b></div></div>
+  <div><div class="label" style="margin-bottom:8px">${L('Date', 'Date')}</div><div class="chips">${[L('Aujourd\'hui', 'Today'), L('Demain', 'Tomorrow'), L('Sam. 16', 'Sat 16')].map((x, i) => `<button class="chip ${i === st.poolDay ? 'on' : ''}" data-act="poolday" data-v="${i}">${x}</button>`).join('')}</div></div>
+  <div class="soft row">${ic('user')}<span class="grow">${L('1 passager', '1 passenger')}</span><div class="qty"><button>${ic('minus')}</button><button class="add">${ic('plus')}</button></div></div></div>
+  <div class="foot"><button class="btn" data-go="poolres">${L('Rechercher', 'Search')}</button></div>${nav('home')}</div>`;
+S.poolres = () => `<div class="scr">${header('Kinshasa → Matadi')}<div class="body"><div class="small">${L('3 trajets', '3 rides')}</div>
+  ${[['07:00', 'Christian L.', 'CL', 2, 45000], ['09:30', 'Mireille K.', 'MK', 3, 40000], ['14:00', 'Joseph T.', 'JT', 1, 50000]].map(([t, n, i, s, p]) =>
+    `<button class="card row" data-go="pooldet" style="border:0;cursor:pointer;text-align:left;color:var(--ink)"><div class="round" style="background:#e9e2d6;border:0;font-weight:800">${i}</div><div class="grow"><div class="h3">${t} · ${n}</div><div class="small">${s} ${L(s > 1 ? 'places' : 'place', s > 1 ? 'seats' : 'seat')} · ★ 4,8</div></div><div class="h3 num">${cdf(p)}</div></button>`).join('')}</div>${nav('home')}</div>`;
+S.pooldet = () => `<div class="scr">${header(L('Détails du trajet', 'Ride details'))}<div class="body">
+  <div class="steps"><div class="step done"><div class="d">${ic('check')}</div><div><div class="h3">07:00 · Kinshasa</div><div class="small">Gare Centrale</div></div></div><div class="step now"><div class="d"></div><div><div class="h3">13:30 · Matadi</div><div class="small">${L('Centre-ville', 'City centre')}</div></div></div></div>
+  <div class="row soft"><div class="round" style="background:#e9e2d6;border:0;font-weight:800">CL</div><div class="grow"><div class="h3">Christian L.</div><div class="small">★ 4,8 · Toyota RAV4</div></div></div>
+  <div class="row"><span class="grow sub">${L('1 place', '1 seat')}</span><span class="h2 num">${cdf(45000)}</span></div></div>
+  <div class="foot"><button class="btn" data-go="${ok({ t: ['Place réservée', 'Seat booked'], s: ['Départ demain à 07:00', 'Leaves tomorrow at 07:00'], b: 'activity' })}">${L('Réserver', 'Book')}</button></div>${nav('home')}</div>`;
+
+/* parcel */
+S.parcel = () => `<div class="scr">${header(L('Envoyer un colis', 'Send a parcel'))}<div class="body">
+  <div style="display:flex;flex-direction:column;gap:10px"><div class="field">${ic('pin')}Pullman, Gombe</div><div class="field on">${ic('pin', 'style="color:var(--gold-deep)"')}<b>Silikin Village</b></div></div>
+  <div><div class="label" style="margin-bottom:8px">${L('Taille', 'Size')}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${[['s', L('Petit', 'Small'), 0.75], ['m', L('Moyen', 'Medium'), 1], ['l', L('Grand', 'Large'), 1.25]].map(([k, n, z]) =>
+    `<button class="opt ${k === st.size ? 'on' : ''}" data-act="size" data-v="${k}" style="flex-direction:column;gap:8px;padding:14px 6px;background:${k === st.size ? '#fffbf1' : 'var(--card)'};box-shadow:0 0 0 1px var(--line) inset">${ic('box', `style="width:${Math.round(28 * z)}px;height:${Math.round(28 * z)}px"`)}<span class="h3" style="font-size:13.5px">${n}</span></button>`).join('')}</div></div>
+  <div class="field">${ic('phone')}<span class="grow">Mireille · 99 874 1230</span></div></div>
+  <div class="foot"><button class="btn" data-go="ptrack">${L('Confirmer', 'Confirm')} · ${cdf({ s: 4500, m: 6500, l: 9500 }[st.size])}</button></div>${nav('home')}</div>`;
+S.ptrack = () => `<div class="scr">${map('<use href="#route"/><g transform="translate(150 286)"><circle r="14" cx="14" cy="10" fill="#17171a"/></g>')}<div class="floattop"><button class="round" data-go="home" data-reset aria-label="Home">${ic('home')}</button><span></span></div>
+  <div class="sheet"><div class="grab"></div><h2 class="h2">${L('Colis en route', 'Parcel on the way')}</h2>
+  <div class="steps"><div class="step done"><div class="d">${ic('check')}</div><div class="h3">${L('Coursier assigné', 'Courier assigned')}</div></div><div class="step now"><div class="d"></div><div class="h3">${L('Colis récupéré', 'Parcel picked up')}</div></div><div class="step"><div class="d"></div><div class="h3">${L('Livré', 'Delivered')}</div></div></div>
+  <div class="row soft"><div class="round" style="background:#e9e2d6;border:0;font-weight:800">SM</div><div class="grow"><div class="h3">Serge M.</div><div class="small">${L('Moto', 'Moto')} · 2480AA</div></div><button class="round" data-act="toast" data-v="${L('Appel en cours…', 'Calling…')}" aria-label="Call">${ic('phone')}</button></div></div></div>`;
+S.ptrack.auto = [() => ok({ t: ['Colis livré', 'Parcel delivered'], s: ['Reçu par Mireille à 14:44', 'Received by Mireille at 14:44'], b: 'home' }), 6000];
+
+/* food */
+S.food = () => `<div class="scr">${header(L('Repas', 'Food'), { right: `<button class="round" aria-label="Search">${ic('search')}</button>` })}<div class="body">
+  <div class="chips">${[L('Tout', 'All'), 'Local', L('Grillades', 'Grills'), L('Boissons', 'Drinks')].map((x, i) => `<button class="chip ${i === 0 ? 'on' : ''}" data-act="pick">${x}</button>`).join('')}</div>
+  <button class="food" data-go="menu">${foodArt('#f9d98a', '#f1b23c', DISH1)}<div class="meta"><div class="h3">Chez Ntemba</div><div class="small">★ 4,8 · 25 min</div></div></button>
+  <button class="food" data-go="menu">${foodArt('#f3e6d3', '#e4c9a2', DISH2)}<div class="meta"><div class="h3">Le Café de Rome</div><div class="small">★ 4,9 · 20 min</div></div></button>
+  <button class="food" data-go="menu">${foodArt('#efd9c8', '#d9a982', DISH3)}<div class="meta"><div class="h3">Al Dar</div><div class="small">★ 4,7 · 30 min</div></div></button></div>${nav('home')}</div>`;
+const cartCount = () => Object.values(st.cart).reduce((a, b) => a + b, 0);
+const cartTotal = () => MENU.reduce((a, m) => a + (st.cart[m.id] || 0) * m.p, 0);
+S.menu = () => `<div class="scr"><div style="position:relative">${foodArt('#f9d98a', '#f1b23c', DISH1).replace('height:116px', '').replace('class="art"', 'class="art" style="height:170px"')}<div class="floattop"><button class="round" data-back aria-label="Back">${ic('back')}</button><button class="round" data-go="home" data-reset aria-label="Home">${ic('home')}</button></div></div>
+  <div class="body" style="padding-top:16px"><div><h2 class="h2">Chez Ntemba</h2><div class="small" style="margin-top:2px">★ 4,8 · 25 min · ${L('Livraison', 'Delivery')} ${cdf(3500)}</div></div>
+  <div class="list">${MENU.map(m => `<div class="li" style="cursor:default"><div class="grow"><div class="h3">${L(m.fr, m.en)}</div><div class="small num">${cdf(m.p)}</div></div><div class="qty">${st.cart[m.id] ? `<button data-act="cart" data-v="${m.id}" data-d="-1" aria-label="-">${ic('minus')}</button><b class="num">${st.cart[m.id]}</b>` : ''}<button class="add" data-act="cart" data-v="${m.id}" data-d="1" aria-label="+">${ic('plus')}</button></div></div>`).join('')}</div></div>
+  ${cartCount() ? `<div class="foot"><button class="cartbar" data-go="cart"><span class="n">${cartCount()}</span><span class="grow" style="text-align:left">${L('Voir le panier', 'View cart')}</span><span class="num">${cdf(cartTotal())}</span></button></div>` : ''}${nav('home')}</div>`;
+S.cart = () => `<div class="scr">${header(L('Panier', 'Cart'))}<div class="body">
+  <div class="list">${MENU.filter(m => st.cart[m.id]).map(m => `<div class="li" style="cursor:default"><div class="grow"><div class="h3">${L(m.fr, m.en)}</div><div class="small num">${cdf(m.p)}</div></div><div class="qty"><button data-act="cart" data-v="${m.id}" data-d="-1" aria-label="-">${ic('minus')}</button><b class="num">${st.cart[m.id]}</b><button class="add" data-act="cart" data-v="${m.id}" data-d="1" aria-label="+">${ic('plus')}</button></div></div>`).join('') || `<p class="sub">${L('Votre panier est vide.', 'Your cart is empty.')}</p>`}</div>
+  <div class="list">${li('pin', 'Pullman, Gombe', L('Chambre 412', 'Room 412'), null)}${li('wallet', 'Yallah Pay', cdf(85000), null)}</div>
+  <div class="soft" style="display:flex;flex-direction:column;gap:6px"><div class="row"><span class="grow small">${L('Livraison', 'Delivery')}</span><span class="num small">${cdf(3500)}</span></div><div class="row"><b class="grow">Total</b><b class="num">${cdf(cartTotal() + 3500)}</b></div></div></div>
+  <div class="foot"><button class="btn" data-go="order" ${cartCount() ? '' : 'disabled style="opacity:.4"'}>${L('Commander', 'Place order')}</button></div>${nav('home')}</div>`;
+S.order = () => `<div class="scr">${header(L('Votre commande', 'Your order'), { back: false })}<div class="body">
+  <div class="center" style="display:flex;flex-direction:column;gap:4px;padding:10px 0"><div class="small">${L('Arrivée estimée', 'Estimated arrival')}</div><div class="h1 num">13:55</div></div>
+  <div class="bar fill" style="--dur:6s"><i></i></div>
+  <div class="steps"><div class="step done"><div class="d">${ic('check')}</div><div class="h3">${L('Commande confirmée', 'Order confirmed')}</div></div><div class="step now"><div class="d"></div><div class="h3">${L('En préparation', 'Being prepared')}</div></div><div class="step"><div class="d"></div><div class="h3">${L('En route', 'On the way')}</div></div><div class="step"><div class="d"></div><div class="h3">${L('Livrée', 'Delivered')}</div></div></div>
+  <div class="row soft"><div class="tile">${ic('food')}</div><div class="grow"><div class="h3">Chez Ntemba</div><div class="small">${cartCount()} ${L('articles', 'items')}</div></div></div></div>${nav('activity')}</div>`;
+S.order.auto = [() => { st.cart = {}; return ok({ t: ['Bon appétit !', 'Enjoy your meal!'], s: ['Commande livrée à 13:52', 'Delivered at 13:52'], b: 'home', rate: true }); }, 6200];
+
+/* more */
+S.more = () => `<div class="scr">${header(L('Plus de services', 'More services'))}<div class="body"><div class="list">
+  ${li('key', L('Location de voiture', 'Car rental'), null, 'rental')}${li('bus', L('Bus interurbain', 'Intercity bus'), null, 'bus')}${li('school', L('Transport scolaire', 'School transport'), null, 'req', undefined)}
+  ${li('building', L('Entreprise', 'Business'), null, 'req')}${li('plane', L('Aéroport', 'Airport'), null, 'req')}</div></div>${nav('home')}</div>`;
+S.rental = () => `<div class="scr">${header(L('Location de voiture', 'Car rental'))}<div class="body">
+  ${CARS.map(c => `<button class="food" data-go="rentdet" data-car="${c.id}"><div class="art" style="height:120px">${carArt(c.col)}</div><div class="meta row" style="flex-direction:row"><div class="grow"><div class="h3">${c.name}</div><div class="small">${c.seats} ${L('places', 'seats')}</div></div><div class="h3 num">${cdf(c.p)}<span class="small">/${L('jour', 'day')}</span></div></div></button>`).join('')}</div>${nav('home')}</div>`;
+S.rentdet = () => { const c = CARS.find(x => x.id === (st.car || 'prado'));
+  return `<div class="scr">${header(c.name)}<div class="body"><div style="height:150px;border-radius:22px;overflow:hidden">${carArt(c.col)}</div>
+  <div class="chips">${[L('Automatique', 'Automatic'), `${c.seats} ${L('places', 'seats')}`, L('Climatisée', 'Air con')].map(x => `<span class="chip" style="cursor:default">${x}</span>`).join('')}</div>
+  <div class="list">${li('cal', '15 – 18 nov.', L('3 jours', '3 days'), null)}${li('pin', 'Pullman, Gombe', L('Prise en charge', 'Pick-up'), null)}</div>
+  <div class="row"><div class="grow"><div class="h3">${L('Avec chauffeur', 'With driver')}</div></div><button class="toggle ${st.chauffeur ? 'on' : ''}" data-act="chauffeur" aria-label="Chauffeur"></button></div>
+  <div class="row"><span class="grow sub">Total</span><span class="h2 num">${cdf(c.p * 3 + (st.chauffeur ? 75000 : 0))}</span></div></div>
+  <div class="foot"><button class="btn" data-go="${ok({ t: ['Réservation envoyée', 'Booking sent'], s: ['Confirmation sous 45 min', 'Confirmation within 45 min'], b: 'activity' })}">${L('Réserver', 'Book')}</button></div>${nav('home')}</div>`; };
+S.bus = () => `<div class="scr">${header(L('Bus interurbain', 'Intercity bus'))}<div class="body">
+  <div class="row soft"><div class="grow"><div class="small">${L('De', 'From')}</div><div class="h3">Kinshasa</div></div>${ic('arrow')}<div class="grow" style="text-align:right"><div class="small">${L('À', 'To')}</div><div class="h3">Matadi</div></div></div>
+  <div class="label">${L('Samedi 16 nov.', 'Saturday 16 Nov')}</div>
+  ${[['06:30', '13:00', 45000, 12], ['10:00', '16:30', 40000, 4]].map(([a, b, p, s]) => `<button class="card row" data-go="seats" style="border:0;cursor:pointer;text-align:left;color:var(--ink)"><div class="tile">${ic('bus')}</div><div class="grow"><div class="h3 num">${a} → ${b}</div><div class="small">${s} ${L('places libres', 'seats left')}</div></div><div class="h3 num">${cdf(p)}</div></button>`).join('')}</div>${nav('home')}</div>`;
+S.seats = () => { const taken = ['1A', '1B', '2C', '3A', '4D', '5B', '5C']; const rows = [1, 2, 3, 4, 5, 6];
+  return `<div class="scr">${header(L('Choisir une place', 'Pick a seat'))}<div class="body"><div class="seats">${rows.map(r => ['A', 'B', '', 'C', 'D'].map(c => c ? `<button class="seat ${taken.includes(r + c) ? 'taken' : ''} ${st.seat === r + c ? 'on' : ''}" ${taken.includes(r + c) ? 'disabled' : `data-act="seat" data-v="${r + c}"`}>${r}${c}</button>` : '<span></span>').join('')).join('')}</div>
+  <div class="chips" style="justify-content:center"><span class="small">■ ${L('Libre', 'Free')}</span><span class="small" style="color:var(--gold-deep)">■ ${L('Votre place', 'Your seat')}</span></div></div>
+  <div class="foot"><button class="btn" data-go="ticket">${L('Place', 'Seat')} ${st.seat} · ${cdf(45000)}</button></div>${nav('home')}</div>`; };
+S.ticket = () => `<div class="scr">${header(L('Votre billet', 'Your ticket'), { back: false })}<div class="body center" style="gap:14px">
+  <div class="card center" style="display:flex;flex-direction:column;gap:12px;width:100%">${qr()}<div class="h2 num">Kinshasa → Matadi</div><div class="small num">${L('Sam. 16 nov. · 06:30 · Place', 'Sat 16 Nov · 06:30 · Seat')} ${st.seat}</div></div>
+  <p class="sub">${L('Montrez ce code à l\'embarquement.', 'Show this code when boarding.')}</p></div>
+  <div class="foot"><button class="btn" data-go="home" data-reset>${L('Terminer', 'Done')}</button></div>${nav('activity')}</div>`;
+S.req = () => { const r = st.req || 'school'; const T = { school: [L('Transport scolaire', 'School transport'), 'school', [L('Élève', 'Student'), 'Ketsia M.'], [L('École', 'School'), 'TASOK, Ngaliema'], [L('Horaires', 'Times'), '07:15 · 15:30']], corporate: [L('Entreprise', 'Business'), 'building', [L('Société', 'Company'), 'Vodacom DRC'], [L('Trajet', 'Route'), 'Gombe → Limete'], [L('Personnes', 'People'), '24']], airport: [L('Aéroport', 'Airport'), 'plane', [L('Vol', 'Flight'), 'AF 889'], [L('Arrivée', 'Arrival'), '17:30 · FIH'], [L('Vers', 'To'), 'Pullman, Gombe']] }[r];
+  return `<div class="scr">${header(T[0])}<div class="body"><div class="center" style="display:flex;flex-direction:column;gap:8px;padding:8px 0"><div class="tile gold" style="width:64px;height:64px;border-radius:22px">${ic(T[1], 'style="width:30px;height:30px"')}</div></div>
+  <div class="list">${[T[2], T[3], T[4]].map(([a, b]) => `<div class="li" style="cursor:default"><div class="grow"><div class="small">${a}</div><div class="h3">${b}</div></div>${ic('chev', 'class="ic chev"')}</div>`).join('')}</div></div>
+  <div class="foot"><button class="btn" data-go="${ok({ t: ['Demande envoyée', 'Request sent'], s: ['Nous vous contactons sous 24 h', "We'll contact you within 24 h"], b: 'home' })}">${L('Envoyer la demande', 'Send request')}</button></div>${nav('home')}</div>`; };
+
+/* wallet */
+S.wallet = () => `<div class="scr"><div class="glow" style="width:460px;height:300px;left:-35px;top:20px;opacity:.75"></div>
+  <div class="top rel"><div class="t">${L('Portefeuille', 'Wallet')}</div></div>
+  <div class="body rel"><div class="center" style="display:flex;flex-direction:column;padding:6px 0"><div class="small">${L('Solde disponible', 'Available balance')}</div><div class="num" style="font-size:40px;font-weight:800;letter-spacing:-0.03em">${cdf(145000)}</div><div class="small">≈ $52</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">${[['plus', L('Recharger', 'Top up'), 'topup', true], ['send', L('Envoyer', 'Send'), 'send'], ['down', L('Retirer', 'Withdraw'), 'withdraw']].map(([i, l, g, h]) =>
+    `<button data-go="${g}" style="border:0;background:none;cursor:pointer;color:var(--ink)"><div class="round" style="width:58px;height:58px;margin:0 auto 8px;${h ? 'background:var(--gold);border:0;color:#1d1500' : ''}">${ic(i)}</div><div class="h3" style="font-size:13.5px">${l}</div></button>`).join('')}</div>
+  <div><div class="h3">${L('Activité', 'Activity')}</div><div class="list">${li('car', 'Taxi', L('Aujourd\'hui', 'Today'), 'receipt', '<b class="num">−14 000</b>')}${li('food', 'Chez Ntemba', L('Hier', 'Yesterday'), 'receipt', '<b class="num">−24 000</b>')}${li('plus', 'M-Pesa', L('Hier', 'Yesterday'), null, '<b class="num" style="color:var(--gold-deep)">+50 000</b>', 'gold')}</div></div></div>${nav('wallet')}</div>`;
+S.topup = () => { const M = [['mpesa', 'M-Pesa'], ['airtel', 'Airtel Money'], ['orange', 'Orange Money'], ['agent', L('Agent Yallah', 'Yallah agent')]];
+  return `<div class="scr">${header(L('Recharger', 'Top up'))}<div class="body"><div class="amount num">${cdf(st.amount)}</div>
+  <div class="chips" style="justify-content:center">${[10000, 25000, 50000].map(a => `<button class="chip ${a === st.amount ? 'on' : ''}" data-act="amount" data-v="${a}">${fmt(a)}</button>`).join('')}</div>
+  <div class="list">${M.map(([k, n]) => `<button class="li" data-act="method" data-v="${k}"><div class="tile">${ic(k === 'agent' ? 'store' : 'mobile')}</div><div class="grow h3">${n}</div><span class="radio ${k === st.method ? 'on' : ''}"></span></button>`).join('')}</div></div>
+  <div class="foot"><button class="btn" data-go="${st.method === 'agent' ? 'withdraw' : 'approve'}">${L('Continuer', 'Continue')}</button></div>${nav('wallet')}</div>`; };
+S.approve = () => `<div class="scr fade">${header('', { home: false })}<div class="body center" style="justify-content:center;gap:16px">
+  <div style="position:relative;width:120px;height:120px;display:grid;place-items:center"><div class="pulse" style="inset:0"></div><div class="tile solid" style="width:76px;height:76px;border-radius:26px">${ic('mobile', 'style="width:34px;height:34px"')}</div></div>
+  <h2 class="h2">${L('Validez sur votre téléphone', 'Approve on your phone')}</h2><p class="sub">${L('Entrez votre code', 'Enter your')} ${st.method === 'mpesa' ? 'M-Pesa' : st.method === 'airtel' ? 'Airtel Money' : 'Orange Money'}${L('', ' PIN')}.</p></div></div>`;
+S.approve.auto = [() => ok({ t: ['Recharge réussie', 'Top-up successful'], s: [`+ ${cdf(st.amount)}`, `+ ${cdf(st.amount)}`], b: 'wallet' }), 3200];
+S.send = () => `<div class="scr">${header(L('Envoyer', 'Send'))}<div class="body">
+  <div class="row" style="gap:16px">${[['MK', 'Mireille', true], ['CL', 'Christian'], ['PK', 'Patrick']].map(([i, n, on]) => `<div class="center" style="display:flex;flex-direction:column;gap:6px"><div class="round" style="width:56px;height:56px;font-weight:800;${on ? 'background:var(--gold);border:0' : 'background:#e9e2d6;border:0'}">${i}</div><span class="small">${n}</span></div>`).join('')}<div class="center" style="display:flex;flex-direction:column;gap:6px"><div class="round" style="width:56px;height:56px">${ic('plus')}</div><span class="small">${L('Nouveau', 'New')}</span></div></div>
+  <div class="amount num" style="margin-top:12px">${cdf(25000)}</div><div class="small" style="text-align:center">${L('À Mireille · sans frais', 'To Mireille · no fee')}</div></div>
+  <div class="foot"><button class="btn" data-go="pin">${L('Envoyer', 'Send')}</button></div>${nav('wallet')}</div>`;
+S.pin = () => `<div class="scr">${header('', { home: false })}<div class="body center" style="gap:22px"><h2 class="h2">${L('Code PIN', 'PIN code')}</h2>
+  <div class="pins">${[0, 1, 2, 3].map(i => `<i class="${i < st.pin.length ? 'on' : ''}"></i>`).join('')}</div>
+  <div class="keypad" style="width:100%;max-width:300px">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].map(k => k ? `<button data-act="key" data-v="${k}">${k}</button>` : '<span></span>').join('')}</div></div></div>`;
+S.withdraw = () => `<div class="scr">${header(L('Retirer', 'Withdraw'))}<div class="body"><div class="amount num">${cdf(50000)}</div>
+  <div class="card row"><div class="tile gold">${ic('store')}</div><div class="grow"><div class="h3">Yallah Gombe</div><div class="small">450 m · ${L('ouvert jusqu\'à 21:00', 'open until 21:00')}</div></div></div></div>
+  <div class="foot"><button class="btn" data-go="wcode">${L('Générer le code', 'Get my code')}</button></div>${nav('wallet')}</div>`;
+S.wcode = () => `<div class="scr">${header(L('Code de retrait', 'Withdrawal code'), { back: false })}<div class="body center" style="gap:14px"><div class="card">${qr()}</div>
+  <div class="h1 num" style="letter-spacing:.12em">849 206</div><p class="sub">${L('Montrez ce code à l\'agent. Valable 30 min.', 'Show this code to the agent. Valid 30 min.')}</p></div>
+  <div class="foot"><button class="btn" data-go="wallet" data-reset>${L('Terminer', 'Done')}</button></div>${nav('wallet')}</div>`;
+
+/* activity + profile */
+S.activity = () => `<div class="scr"><div class="top"><div class="t">${L('Activité', 'Activity')}</div></div><div class="body">
+  <div class="chips"><button class="chip on">${L('Tout', 'All')}</button><button class="chip">${L('Courses', 'Rides')}</button><button class="chip">${L('Commandes', 'Orders')}</button></div>
+  <div class="list">${li('car', 'Taxi · Silikin Village', L('Aujourd\'hui · ', 'Today · ') + cdf(14000), 'receipt')}${li('food', 'Chez Ntemba', L('Hier · ', 'Yesterday · ') + cdf(24000), 'receipt')}${li('bus', 'Kinshasa → Matadi', L('Sam. 16 nov.', 'Sat 16 Nov'), 'ticket')}${li('box', L('Colis · Mireille', 'Parcel · Mireille'), L('12 nov.', '12 Nov') + ' · ' + cdf(6500), 'receipt')}</div></div>${nav('activity')}</div>`;
+S.receipt = () => `<div class="scr">${header(L('Reçu', 'Receipt'))}<div class="body"><div class="center" style="display:flex;flex-direction:column;gap:4px;padding:6px 0"><div class="tile gold" style="width:56px;height:56px;border-radius:18px">${ic('car')}</div><div class="h2 num" style="margin-top:8px">${cdf(14000)}</div><div class="small">${L('Aujourd\'hui · 14:18', 'Today · 14:18')}</div></div>
+  <div class="list">${[[L('De', 'From'), 'Pullman, Gombe'], [L('À', 'To'), 'Silikin Village'], [L('Chauffeur', 'Driver'), 'Patrick K.'], [L('Paiement', 'Payment'), 'Yallah Pay']].map(([a, b]) => `<div class="li" style="cursor:default"><span class="grow small">${a}</span><b>${b}</b></div>`).join('')}</div></div>
+  <div class="foot"><button class="btn ghost" data-go="help">${L('Un problème ?', 'Need help?')}</button></div>${nav('activity')}</div>`;
+S.profile = () => `<div class="scr"><div class="top"><div class="t">${L('Profil', 'Profile')}</div></div><div class="body">
+  <div class="row"><div class="round" style="width:64px;height:64px;background:var(--gold-soft);border:0;font-weight:800;font-size:20px;color:var(--gold-deep)">AM</div><div class="grow"><div class="h2">Alain Mukendi</div><div class="small">+243 82 441 9080</div></div></div>
+  <div class="list">${li('pin', L('Adresses', 'Addresses'), null, null)}${li('card', L('Paiement', 'Payment'), null, 'wallet')}
+  <div class="li" style="cursor:default"><div class="tile">${ic('lang')}</div><div class="grow h3">${L('Langue', 'Language')}</div><div class="chips"><button class="chip ${st.lang === 'fr' ? 'on' : ''}" data-act="lang" data-v="fr">FR</button><button class="chip ${st.lang === 'en' ? 'on' : ''}" data-act="lang" data-v="en">EN</button></div></div>
+  ${li('shield', L('Sécurité', 'Safety'), null, 'safety')}${li('help', L('Aide', 'Help'), null, 'help')}${li('out', L('Se déconnecter', 'Sign out'), null, 'login')}</div></div>${nav('profile')}</div>`;
+S.help = () => `<div class="scr">${header(L('Aide', 'Help'))}<div class="body"><div class="list">
+  ${[L('Remboursement d\'une course', 'Ride refund'), L('Recharger avec un agent', 'Top up with an agent'), L('Objet perdu', 'Lost item'), L('Modifier mon numéro', 'Change my number')].map(x => `<button class="li" data-act="toast" data-v="${L('Bientôt disponible', 'Coming soon')}"><div class="grow h3" style="font-weight:600">${x}</div>${ic('chev', 'class="ic chev"')}</button>`).join('')}</div></div>
+  <div class="foot"><button class="btn" data-go="chat" data-chat="support">${ic('chat')}${L('Discuter avec nous', 'Chat with us')}</button></div>${nav('profile')}</div>`;
+
+S.ok = () => { const o = st.ok || { t: ['Terminé', 'Done'], s: ['', ''], b: 'home' };
+  return `<div class="scr fade"><div class="glow" style="width:440px;height:360px;left:-25px;top:90px"></div><div class="body rel center" style="justify-content:center;gap:12px"><div class="okmark">${ic('check')}</div>
+  <h1 class="h1" style="margin-top:10px">${L(o.t[0], o.t[1])}</h1>${o.s[0] ? `<p class="sub">${L(o.s[0], o.s[1])}</p>` : ''}${o.rate ? `<div class="stars" style="margin-top:10px">${stars(st.rate)}</div>` : ''}</div>
+  <div class="foot"><button class="btn" data-go="${o.b}" data-reset>${o.b === 'home' ? L('Retour à l\'accueil', 'Back to home') : o.b === 'wallet' ? L('Voir le portefeuille', 'View wallet') : L('Voir mon activité', 'View activity')}</button></div></div>`; };
+
+/* ---------- router ---------- */
+const app = document.getElementById('app');
+function render(name, push = true) {
+  if (!S[name]) return;
+  clearTimeout(timer);
+  if (push && current && current !== name) stack.push(current);
+  current = name;
+  const old = app.querySelector('.scr');
+  app.insertAdjacentHTML('beforeend', S[name]());
+  if (old) old.remove();
+  const a = S[name].auto;
+  if (a) timer = setTimeout(() => { if (current === name) render(typeof a[0] === 'function' ? a[0]() : a[0]); }, a[1]);
+  updateRail();
+}
+function refresh() { const sc = app.querySelector('.scr'); const y = sc && sc.querySelector('.body') ? sc.querySelector('.body').scrollTop : 0; const old = sc; app.insertAdjacentHTML('beforeend', S[current]()); old && old.remove(); const nb = app.querySelector('.scr .body'); if (nb) nb.scrollTop = y; app.querySelector('.scr').style.animation = 'none'; }
+function back() { clearTimeout(timer); const p = stack.pop(); render(p || 'home', false); }
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; app.appendChild(t); setTimeout(() => t.remove(), 1600); }
+
+app.addEventListener('click', e => {
+  const el = e.target.closest('[data-go],[data-back],[data-act]');
+  if (!el || el.disabled) return;
+  if (el.dataset.mode) { st.mode = el.dataset.mode; st.ride = el.dataset.mode === 'moto' ? 'moto' : 'taxi'; }
+  if (el.dataset.car) st.car = el.dataset.car;
+  if (el.dataset.chat) st.chatWith = el.dataset.chat;
+  if (el.hasAttribute('data-back')) return back();
+  if (el.dataset.go) {
+    const go = el.dataset.go;
+    if (go === 'req') st.req = /plane|airport|aéroport/i.test(el.textContent) ? 'airport' : /entreprise|business/i.test(el.textContent) ? 'corporate' : 'school';
+    if (go === 'pin') st.pin = '';
+    if (el.hasAttribute('data-reset')) stack = [];
+    return render(go);
+  }
+  const v = el.dataset.v;
+  switch (el.dataset.act) {
+    case 'ride': st.ride = v; refresh(); break;
+    case 'rate': st.rate = +v; refresh(); break;
+    case 'tip': st.tip = +v; refresh(); break;
+    case 'poolday': st.poolDay = +v; refresh(); break;
+    case 'size': st.size = v; refresh(); break;
+    case 'cart': st.cart[v] = Math.max(0, (st.cart[v] || 0) + (+el.dataset.d)); if (!st.cart[v]) delete st.cart[v]; refresh(); break;
+    case 'chauffeur': st.chauffeur = !st.chauffeur; refresh(); break;
+    case 'seat': st.seat = v; refresh(); break;
+    case 'amount': st.amount = +v; refresh(); break;
+    case 'method': st.method = v; refresh(); break;
+    case 'lang': setLang(v); break;
+    case 'pick': el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el)); break;
+    case 'toast': toast(v); break;
+    case 'key': if (v === '⌫') st.pin = st.pin.slice(0, -1); else if (st.pin.length < 4) st.pin += v; refresh();
+      if (st.pin.length === 4) setTimeout(() => render(ok({ t: ['Argent envoyé', 'Money sent'], s: [`${cdf(25000)} à Mireille`, `${cdf(25000)} to Mireille`], b: 'wallet' })), 350); break;
+  }
+});
+
+/* ---------- shell: journeys, language, fit ---------- */
+const J = [
+  ['splash', 'home', () => L('Démarrage', 'Start'), null], ['home', 'grid', () => L('Accueil', 'Home'), null],
+  ['dest', 'car', () => 'Taxi', 'taxi'], ['dest', 'moto', () => 'Moto', 'moto'], ['pool', 'pool', () => L('Covoiturage', 'Carpool'), null],
+  ['parcel', 'box', () => L('Colis', 'Parcel'), null], ['food', 'food', () => L('Repas', 'Food'), null], ['rental', 'key', () => L('Location de voiture', 'Car rental'), null],
+  ['bus', 'bus', () => L('Bus interurbain', 'Intercity bus'), null], ['wallet', 'wallet', () => L('Portefeuille', 'Wallet'), null], ['profile', 'user', () => L('Profil', 'Profile'), null]
+];
+function buildRail() {
+  document.getElementById('jlist').innerHTML = J.map(([s, i, l, m], k) => `<button type="button" data-j="${k}">${ic(i)}<span>${l()}</span></button>`).join('');
+  document.getElementById('railSub').textContent = L('Touchez l\'écran comme dans la vraie application.', 'Tap through it like the real app.');
+  document.getElementById('restartL').textContent = L('Recommencer', 'Restart');
+}
+function updateRail() {}
+document.getElementById('jlist').addEventListener('click', e => { const b = e.target.closest('[data-j]'); if (!b) return; const [s, , , m] = J[+b.dataset.j]; if (m) { st.mode = m; st.ride = m; } stack = []; render(s); closeSheet(); });
+document.getElementById('restart').addEventListener('click', () => { stack = []; st.cart = {}; render('splash'); closeSheet(); });
+function setLang(l) { st.lang = l; document.documentElement.lang = l; document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === l)); buildRail(); if (current) refresh(); try { localStorage.setItem('yallah-lang', l); } catch (e) {} }
+document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+const rail = document.getElementById('rail'), bd = document.getElementById('backdrop');
+function closeSheet() { rail.classList.remove('sheet'); bd.classList.remove('show'); }
+document.getElementById('handle').addEventListener('click', () => { rail.classList.add('sheet'); bd.classList.add('show'); });
+bd.addEventListener('click', closeSheet);
+function fit() { const s = Math.min(1, (window.innerHeight - 48) / 868, (window.innerWidth - 420) / 414); document.getElementById('device').style.setProperty('--s', Math.max(0.55, s).toFixed(3)); }
+window.addEventListener('resize', fit); fit();
+try { const l = localStorage.getItem('yallah-lang'); if (l === 'en' || l === 'fr') st.lang = l; } catch (e) {}
+setLang(st.lang);
+const H = { taxi: ['dest', 'taxi'], moto: ['dest', 'moto'], carpool: ['pool'], parcel: ['parcel'], food: ['food'], rental: ['rental'], bus: ['bus'], wallet: ['wallet'], home: ['home'], profile: ['profile'] }[(location.hash || '').slice(1)];
+if (H) { if (H[1]) { st.mode = H[1]; st.ride = H[1]; } render(H[0]); } else render('splash');
+</script>
+
+</body></html>
