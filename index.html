@@ -391,7 +391,7 @@ S.splash.auto = ['intro', 2400];
 
 const SLIDES = () => [
   { img: `<img class="photo" src="${PH.tower}" alt="" style="object-position:50% 30%">`, t: L('Kinshasa,<br>en mouvement', 'Kinshasa,<br>on the move'), s: L('Taxi, moto, repas et colis. Une seule app.', 'Rides, food and parcels. One app.') },
-  { img: `<img class="photo" src="${PH.car}" alt="" style="filter:blur(18px) brightness(.55);transform:scale(1.15)"><img src="${PH.car}" alt="" style="position:absolute;left:0;right:0;top:calc(var(--top) + 84px);width:100%;aspect-ratio:3/2;object-fit:cover;object-position:60% 50%;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 82%,transparent)">`, t: L('Des chauffeurs<br>de confiance', 'Drivers<br>you can trust'), s: L('Vérifiés, notés, suivis en direct.', 'Verified, rated, tracked live.') },
+  { img: `<img class="photo" src="${PH.car}" alt="" style="filter:blur(18px) brightness(.55);transform:scale(1.15)"><img src="${PH.car}" alt="" style="position:absolute;left:0;right:0;top:calc(var(--top) + 84px);width:100%;aspect-ratio:3/2;object-fit:cover;object-position:60% 50%;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 82%,transparent)">`, t: L('Montez,<br>on vous conduit', 'Hop in,<br>we\'ll drive'), s: L('Chauffeurs vérifiés, trajets suivis en direct.', 'Verified drivers, live-tracked rides.') },
   { img: SCENE.pay, t: L('Payez<br>en un geste', 'Pay<br>in one tap'), s: 'M-Pesa, Airtel Money, Orange Money.' }
 ];
 S.intro = () => { const sl = SLIDES(), s = sl[st.slide], last = st.slide === sl.length - 1;
@@ -438,7 +438,7 @@ S.home = () => `<div class="scr">
   <div class="body">
     <button class="field" data-go="dest" data-ride="taxi"><span class="ph" style="display:flex;gap:12px;align-items:center">${ic('search')}${L('Où allez-vous ?', 'Where to?')}</span></button>
     <div class="svc4">${SERV().map((s, i) => svcBtn(s, i === 0)).join('')}</div>
-    <button class="banner" data-go="rental"><img src="${PH.car}" alt="" style="object-position:60% 55%"><div class="cap"><div class="h3">${L('Location avec chauffeur', 'Rent with a driver')}</div><div class="small" style="color:rgba(255,255,255,.8)">${L('Dès', 'From')} ${cdf(120000)} / ${L('jour', 'day')}</div></div></button>
+    <button class="banner" data-go="rental"><img src="${PH.car}" alt="" style="object-position:60% 55%"><div class="cap"><div class="h3">${L('Location de voiture', 'Car rental')}</div><div class="small" style="color:rgba(255,255,255,.8)">${L('Dès', 'From')} ${cdf(120000)} / ${L('jour', 'day')}</div></div></button>
     <div><div class="h3" style="margin-bottom:10px">${L('Découvrir', 'Discover')}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button class="banner" data-go="pool" style="height:120px">${towerImg('50% 30%')}<div class="cap" style="padding:30px 12px 10px"><div class="h3" style="font-size:13.5px">Kinshasa → Matadi</div></div></button>
       <button class="banner" data-go="air1" style="height:120px">${SCENE.plane}<div class="cap" style="padding:30px 12px 10px"><div class="h3" style="font-size:13.5px">${L('Aéroport', 'Airport')}</div></div></button></div></div>
