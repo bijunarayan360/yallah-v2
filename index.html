@@ -341,10 +341,10 @@ const MENU = [
   { id: 'jus', fr: 'Jus de gingembre', en: 'Ginger juice', p: 3000 }
 ];
 const CARS = [
-  { id: 'prado', name: 'Toyota Prado', seats: 7, p: 280000, img: 'photos/prado.jpg' },
-  { id: 'accord', name: 'Honda Accord', seats: 5, p: 120000, img: 'photos/accord.jpg' },
-  { id: 'brv', name: 'Honda BR-V', seats: 7, p: 150000, img: 'photos/brv.jpg' },
-  { id: 'hiace', name: 'Toyota Hiace', seats: 14, p: 200000, img: 'photos/hiace.jpg' }
+  { id: 'prado', name: 'Toyota Prado', seats: 7, p: 280000, kind: 'suv' },
+  { id: 'accord', name: 'Honda Accord', seats: 5, p: 120000, kind: 'sedan' },
+  { id: 'brv', name: 'Honda BR-V', seats: 7, p: 150000, kind: 'crossover' },
+  { id: 'hiace', name: 'Toyota Hiace', seats: 14, p: 200000, kind: 'van' }
 ];
 
 /* ---------- building blocks ---------- */
@@ -369,6 +369,22 @@ const DISH1 = '<ellipse cx="60" cy="58" rx="54" ry="16" fill="#fff8e6"/><ellipse
 const DISH2 = '<ellipse cx="60" cy="58" rx="54" ry="16" fill="#fff"/><path d="M24 52c8-14 64-14 72 0z" fill="#e2b45e"/><path d="M30 48c10-6 50-6 60 0" stroke="#b5452b" stroke-width="4" fill="none"/>';
 const DISH3 = '<ellipse cx="60" cy="58" rx="54" ry="16" fill="#fff"/><path d="M30 50h60" stroke="#8a4a1c" stroke-width="7" stroke-linecap="round"/><circle cx="40" cy="50" r="6" fill="#b85c24"/><circle cx="58" cy="50" r="6" fill="#c96a2a"/><circle cx="76" cy="50" r="6" fill="#a24f1d"/>';
 const carArt = col => `<svg viewBox="0 0 200 90" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block"><rect width="200" height="90" fill="${col}"/><g transform="translate(40 26)"><path d="M10 40V28l14-16h62l20 16h8v12z" fill="#17171a"/><path d="M30 14h22v13H22zM57 14h26l14 13H57z" fill="#cfd6db"/><circle cx="30" cy="42" r="9" fill="#17171a" stroke="#fff" stroke-width="4"/><circle cx="96" cy="42" r="9" fill="#17171a" stroke="#fff" stroke-width="4"/></g></svg>`;
+const CARSHAPE = {
+  sedan: { body: 'M40 140 Q42 122 60 118 L95 112 Q115 90 140 86 L190 86 Q210 88 228 108 L255 114 Q268 118 268 132 L268 142 Q268 148 260 148 L48 148 Q40 148 40 140Z', win: ['M104 112 Q120 94 140 92 L162 92 L162 112Z', 'M168 92 L188 92 Q204 94 218 110 L168 112Z'], wh: [85, 225], r: 18, light: [252, 118] },
+  suv: { body: 'M38 140 L38 112 Q40 104 52 102 L80 100 L100 74 Q104 68 114 68 L222 68 Q232 68 238 76 L258 100 Q270 104 270 116 L270 142 Q270 148 262 148 L46 148 Q38 148 38 140Z', win: ['M106 98 L118 76 L160 76 L160 98Z', 'M166 76 L216 76 Q224 76 228 82 L240 98 L166 98Z'], wh: [82, 228], r: 21, light: [258, 106] },
+  crossover: { body: 'M38 140 L40 118 Q42 108 56 106 L86 104 L108 80 Q112 76 120 76 L214 76 Q226 76 234 86 L254 106 Q268 110 268 122 L268 142 Q268 148 260 148 L46 148 Q38 148 38 140Z', win: ['M112 102 L124 84 L162 84 L162 102Z', 'M168 84 L210 84 Q220 84 226 90 L238 102 L168 102Z'], wh: [84, 226], r: 19, light: [254, 110] },
+  van: { body: 'M30 140 L30 70 Q30 56 44 56 L230 56 Q246 56 256 70 L272 100 Q276 108 276 118 L276 142 Q276 148 268 148 L38 148 Q30 148 30 140Z', win: ['M44 66 L120 66 L120 96 L44 96Z', 'M126 66 L196 66 L196 96 L126 96Z', 'M202 66 L234 66 Q242 66 248 74 L262 96 L202 96Z'], wh: [78, 232], r: 19, light: [262, 104] }
+};
+const carPic = (kind, uid) => { const c = CARSHAPE[kind];
+  return `<svg viewBox="0 0 300 190" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block"><defs><linearGradient id="cg${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8d58c"/><stop offset=".62" stop-color="#f0a948"/><stop offset="1" stop-color="#d9873a"/></linearGradient></defs>
+  <rect width="300" height="190" fill="url(#cg${uid})"/><circle cx="64" cy="92" r="30" fill="#fff3cf" opacity=".85"/>
+  <g fill="#9a5a24" opacity=".55"><rect x="226" y="40" width="4" height="96"/><path d="M228 42c-14-10-30-8-38 0 12-2 24 0 38 4zM228 42c12-12 28-12 36-4-12-2-24 0-36 6zM228 42c-4-14 2-24 10-28-4 10-6 18-8 28z"/></g>
+  <rect y="150" width="300" height="40" fill="#6b5038"/><path d="M0 168h300" stroke="#e9c58a" stroke-width="2" stroke-dasharray="16 12" opacity=".6"/>
+  <ellipse cx="154" cy="150" rx="122" ry="7" fill="#000" opacity=".25"/>
+  <path d="${c.body}" fill="#f7f5f0"/><path d="${c.body}" fill="none" stroke="#d9d3c8" stroke-width="1.5"/>
+  ${c.win.map(w => `<path d="${w}" fill="#3a3f47"/>`).join('')}
+  <rect x="${c.light[0] - 8}" y="${c.light[1]}" width="12" height="6" rx="3" fill="#fff6d8"/><rect x="38" y="${c.light[1] + 4}" width="8" height="6" rx="2" fill="#c4382f"/>
+  ${c.wh.map(x => `<circle cx="${x}" cy="148" r="${c.r}" fill="#1c1c1e"/><circle cx="${x}" cy="148" r="${c.r * .5}" fill="#c9c9c9"/><circle cx="${x}" cy="148" r="${c.r * .18}" fill="#555"/>`).join('')}</svg>`; };
 /* placeholder "photos": warm duotone scenes, swapped for real photos later */
 const SCENE = {
   pay: `<svg class="photo ph" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a12"/><stop offset=".55" stop-color="#b9781c"/><stop offset="1" stop-color="#f3c25a"/></linearGradient><radialGradient id="sg" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".9"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient></defs><rect width="390" height="844" fill="url(#sp)"/><circle cx="195" cy="330" r="220" fill="url(#sg)"/><path d="M120 844V560c0-30 20-48 44-52l60-10c22-4 40 10 44 30l20 140v176z" fill="#22180a"/><rect x="150" y="250" width="120" height="236" rx="22" fill="#141414"/><rect x="160" y="266" width="100" height="196" rx="12" fill="#f5b82e"/><path d="M190 352l16 16 30-34" stroke="#1d1500" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="178" y="400" width="64" height="10" rx="5" fill="#1d1500" opacity=".5"/><path d="M118 600c-10-40 6-110 40-120l40-6c14 0 18 18 6 26l-34 18" fill="#2c1f0d"/></svg>`,
@@ -627,10 +643,10 @@ S.fmap.auto = [() => { st.cart = {}; return okGo('food'); }, 5400];
 /* ---------- rental ---------- */
 S.rental = () => `<div class="scr">${header(L('Location de voiture', 'Car rental'))}<div class="body">
   <div class="banner" style="height:170px;cursor:default">${pimg('fleet', '50% 65%')}<div class="cap"><div class="h3">${L('Avec ou sans chauffeur', 'With or without a driver')}</div></div></div>
-  ${CARS.map(c => `<button class="card row" data-go="rentdet" data-car="${c.id}" style="padding:10px"><div style="width:96px;height:64px;border-radius:14px;overflow:hidden;flex:none"><img src="${c.img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div><div class="grow"><div class="h3">${c.name}</div><div class="small">${c.seats} ${L('places', 'seats')}</div></div><div class="h3 num" style="text-align:right">${fmt(c.p)}<div class="small">CDF/${L('jour', 'day')}</div></div></button>`).join('')}</div>${nav('home')}</div>`;
+  ${CARS.map(c => `<button class="card row" data-go="rentdet" data-car="${c.id}" style="padding:10px"><div style="width:96px;height:64px;border-radius:14px;overflow:hidden;flex:none">${carPic(c.kind, 't' + c.id)}</div><div class="grow"><div class="h3">${c.name}</div><div class="small">${c.seats} ${L('places', 'seats')}</div></div><div class="h3 num" style="text-align:right">${fmt(c.p)}<div class="small">CDF/${L('jour', 'day')}</div></div></button>`).join('')}</div>${nav('home')}</div>`;
 const curCar = () => CARS.find(x => x.id === st.car) || CARS[0];
 S.rentdet = () => { const c = curCar();
-  return `<div class="scr">${header(c.name)}<div class="body">${heroPhoto(`<img src="${c.img}" alt="" style="object-position:50% 60%">`, 190)}
+  return `<div class="scr">${header(c.name)}<div class="body"><div style="height:190px;border-radius:22px;overflow:hidden;flex:none">${carPic(c.kind, 'h' + c.id)}</div>
   <div class="chips">${[L('Automatique', 'Automatic'), `${c.seats} ${L('places', 'seats')}`, L('Climatisée', 'Air con')].map(x => `<span class="chip static">${x}</span>`).join('')}</div>
   <div class="row"><span class="grow sub">${L('Par jour', 'Per day')}</span><span class="h2 num">${cdf(c.p)}</span></div></div>
   <div class="foot"><button class="btn" data-go="rentdates">${L('Choisir les dates', 'Choose dates')}</button></div>${nav('home')}</div>`; };
