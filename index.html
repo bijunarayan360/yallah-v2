@@ -401,12 +401,9 @@ const towerImg = (pos = '50% 40%') => `<img src="${PH.tower}" alt="" style="obje
 const carImg = (pos = '62% 55%') => `<img src="${PH.car}" alt="" style="object-position:${pos}">`;
 /* ---------- screens ---------- */
 const S = {};
-S.splash = () => `<div class="scr fade">
-  <div class="glow" style="width:540px;height:540px;left:-75px;top:260px"></div>
-  <div class="body rel center" style="justify-content:center;gap:28px">
-    <img src="${LOGO}" alt="Yallah" style="width:212px">
-    <div class="spinner"><i></i></div></div></div>`;
-S.splash.auto = ['intro', 2400];
+S.splash = () => `<div class="scr fade" style="background:#f4f2ee"><img class="photo" src="photos/splash.jpg" alt="Yallah" style="object-position:50% 50%">
+  <div style="position:absolute;left:50%;bottom:calc(var(--bot) + 40px);transform:translateX(-50%);width:72px;z-index:2" class="bar"><i></i></div></div>`;
+S.splash.auto = ['intro', 2800];
 
 const SLIDES = () => [
   { img: `<img class="photo" src="${PH.tower}" alt="" style="object-position:50% 30%">`, t: L('Kinshasa,<br>en mouvement', 'Kinshasa,<br>on the move'), s: L('Taxi, moto, repas et colis. Une seule app.', 'Rides, food and parcels. One app.') },
