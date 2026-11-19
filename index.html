@@ -125,6 +125,18 @@ button.card { border: 0; cursor: pointer; text-align: left; color: var(--ink); w
 .svc4 .sq { width: 100%; max-width: 68px; aspect-ratio: 1; border-radius: 20px; background: var(--card); box-shadow: 0 0 0 1px var(--line) inset; display: grid; place-items: center; }
 .svc4 .sq .ic { width: 26px; height: 26px; stroke-width: 1.5; }
 .svc4 button.hot .sq { background: var(--gold); box-shadow: none; color: #1d1500; }
+.svc4 .sq.art { background: #fff; overflow: hidden; }
+.svc4 .sq.art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.svc4 button.hot .sq.art { background: #fff; box-shadow: 0 0 0 2px var(--gold) inset; }
+.svc4 button.hot .sq.art img { border-radius: 18px; }
+.tile.art { background: #fff; overflow: hidden; padding: 0; box-shadow: 0 0 0 1px var(--line) inset; }
+.tile.art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wl-hero { border-radius: 34px; overflow: hidden; background: #0b0b0b; aspect-ratio: 812 / 731; width: 100%; }
+.wl-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph-field { display: flex; align-items: center; gap: 12px; min-height: 58px; border-radius: 16px; border: 1.5px solid var(--line); background: #fff; padding: 0 16px; }
+.otp6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.otp6 span { aspect-ratio: 44 / 54; border-radius: 12px; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 22px; font-weight: 800; background: #fff; }
+.otp6 span.on { border: 2px solid var(--gold); }
 .svc4 span.n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .balance { display: flex; align-items: center; gap: 12px; background: var(--ink); color: #fff; border-radius: 22px; padding: 16px 18px; }
 .balance .mini { border: 0; background: var(--gold); color: #1d1500; border-radius: 14px; min-height: 42px; padding: 0 14px; font-weight: 700; display: flex; gap: 6px; align-items: center; cursor: pointer; }
@@ -401,10 +413,13 @@ const towerImg = (pos = '50% 40%') => `<img src="${PH.tower}" alt="" style="obje
 const carImg = (pos = '62% 55%') => `<img src="${PH.car}" alt="" style="object-position:${pos}">`;
 /* ---------- screens ---------- */
 const S = {};
-S.splash = () => `<div class="scr fade" style="background:#f4f2ee"><img class="photo" src="photos/splash.jpg" alt="Yallah" style="object-position:50% 50%">
-  <div style="position:absolute;left:50%;bottom:calc(var(--bot) + 40px);transform:translateX(-50%);width:72px;z-index:2" class="bar"><i></i></div></div>`;
-S.splash.auto = ['intro', 2800];
-
+S.splash = () => `<div class="scr fade" style="background:#fff;display:grid;place-items:center"><img src="${LOGO}" alt="YALLAH" style="width:58%;max-width:240px;object-fit:contain"></div>`;
+S.splash.auto = ['welcome', 2200];
+S.welcome = () => `<div class="scr fade" style="background:#fff"><div style="padding:calc(var(--top) + 12px) 20px calc(var(--bot) + 18px);display:flex;flex-direction:column;flex:1;min-height:100%">
+  <div class="wl-hero"><img src="photos/welcome_car.jpg" alt=""></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px 0">
+    <img src="${LOGO}" alt="YALLAH" style="width:150px;object-fit:contain"><h1 class="h1" style="font-size:24px;text-align:center">${L('Bienvenue sur YALLAH', 'Welcome to YALLAH')}</h1></div>
+  <button class="btn" data-go="login">${L('Commencer', 'Get started')}</button></div></div>`;
 const SLIDES = () => [
   { img: `<img class="photo" src="${PH.tower}" alt="" style="object-position:50% 30%">`, t: L('Kinshasa,<br>en mouvement', 'Kinshasa,<br>on the move'), s: L('Taxi, moto, repas et colis. Une seule app.', 'Rides, food and parcels. One app.') },
   { img: `<img class="photo" src="${PH.passenger}" alt="" style="object-position:72% 40%">`, t: L('Montez,<br>on vous conduit', 'Hop in,<br>we\'ll drive'), s: L('Chauffeurs vérifiés, trajets suivis en direct.', 'Verified drivers, live-tracked rides.') },
@@ -419,20 +434,23 @@ S.intro = () => { const sl = SLIDES(), s = sl[st.slide], last = st.slide === sl.
     ${last ? `<button class="btn" data-go="login">${L('Commencer', 'Get started')} ${ic('arrow')}</button>` : `<div class="row"><button class="link" data-go="login" style="color:#fff;padding-left:0;align-self:auto">${L('Se connecter', 'Sign in')}</button><span class="grow"></span><button class="round" data-act="slide" aria-label="${L('Suivant', 'Next')}" style="width:60px;height:60px;background:var(--gold);border:0;color:#1d1500">${ic('arrow')}</button></div>`}
   </div></div>`; };
 
-S.login = () => `<div class="scr fade" style="background:#111"><img class="photo" src="${PH.tower}" alt="" style="object-position:50% 35%"><div class="shade" style="background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.15) 40%,rgba(0,0,0,.75))"></div>
-  <div class="floattop"><button class="round glass" data-back aria-label="Back">${ic('back')}</button><span></span></div>
-  <div class="rel on-photo" style="padding:calc(var(--top) + 76px) 24px 0;display:flex;flex-direction:column;gap:20px">
-    <img src="${LOGOW}" alt="Yallah" style="width:132px">
-    <div><h1 class="h1">${L('Bienvenue', 'Welcome')}</h1><p class="sub" style="margin-top:6px">${L('Entrez votre numéro de téléphone.', 'Enter your phone number.')}</p></div>
-    <div class="field on" style="color:var(--ink)"><svg viewBox="0 0 30 20" width="26" height="18"><use href="#i-flag"/></svg><b>+243</b><span style="width:1px;height:24px;background:var(--line)"></span><span class="num" style="font-weight:600;letter-spacing:.04em">82 441 9080</span></div>
-  </div>
-  <div class="foot rel on-photo" style="margin-top:auto"><button class="btn" data-go="otp">${L('Continuer', 'Continue')} ${ic('arrow')}</button><span class="small" style="text-align:center;color:rgba(255,255,255,.75)">${L('Un code vous sera envoyé par SMS.', "We'll text you a code.")}</span></div></div>`;
+S.login = () => `<div class="scr fade" style="background:#fff">
+  <div class="top" style="padding-top:calc(var(--top) + 8px)"><button class="round" data-back aria-label="Back">${ic('back')}</button><div class="grow" style="display:grid;place-items:center"><img src="${LOGO}" alt="YALLAH" style="width:112px"></div><span style="width:44px"></span></div>
+  <div class="body" style="gap:24px">
+    <h1 class="h1" style="font-size:26px">${L('Entrez votre numéro de téléphone', 'Enter your phone number')}</h1>
+    <div class="ph-field"><svg viewBox="0 0 30 20" width="24" height="16"><use href="#i-flag"/></svg><b>+243</b><span style="width:1px;height:26px;background:var(--line)"></span><span class="num" style="font-weight:600;letter-spacing:.04em">82 441 9080</span></div>
+    <div class="row" style="gap:16px;align-items:center"><p class="sub grow" style="font-size:14px">${L('Nous vous enverrons un code de vérification par SMS.', "We'll send you a verification code by SMS.")}</p>
+      <button class="round" data-go="otp" aria-label="${L('Continuer', 'Continue')}" style="width:58px;height:58px;background:var(--gold);border:0;color:#1d1500">${ic('arrow')}</button></div>
+  </div></div>`;
 
-S.otp = () => `<div class="scr">${header('', { home: false })}
-  <div class="body"><div><h1 class="h1">${L('Code de vérification', 'Verification code')}</h1><p class="sub" style="margin-top:8px">${L('Envoyé au', 'Sent to')} +243 82 441 9080</p></div>
-  <div class="otp"><span>5</span><span>8</span><span>2</span><span class="on">4</span></div>
-  <button class="link" style="align-self:flex-start;padding-left:0">${L('Renvoyer le code · 0:42', 'Resend code · 0:42')}</button></div>
-  <div class="foot"><button class="btn" data-go="signup">${L('Vérifier', 'Verify')}</button></div></div>`;
+S.otp = () => `<div class="scr fade" style="background:#fff">
+  <div class="top" style="padding-top:calc(var(--top) + 8px)"><button class="round" data-back aria-label="Back">${ic('back')}</button><div class="grow" style="display:grid;place-items:center"><img src="${LOGO}" alt="YALLAH" style="width:112px"></div><span style="width:44px"></span></div>
+  <div class="body" style="gap:22px;align-items:stretch">
+    <div style="text-align:center"><h1 class="h1" style="font-size:24px">${L('Entrez le code de vérification', 'Enter the verification code')}</h1><p class="sub" style="margin-top:8px">${L('Nous avons envoyé un code par SMS à votre numéro.', 'We sent a code by SMS to your number.')}</p><p class="small" style="margin-top:4px;font-weight:700;color:var(--ink)">+243 82 441 9080</p></div>
+    <div class="otp6"><span>5</span><span>8</span><span>2</span><span>4</span><span>1</span><span class="on">7</span></div>
+    <button class="btn" data-go="signup">${L('Vérifier', 'Verify')}</button>
+    <button class="link" style="align-self:center">${L('Renvoyer le code', 'Resend code')} · 0:42</button>
+  </div></div>`;
 S.signup = () => `<div class="scr">${header('', { home: false })}<div class="body"><h1 class="h1">${L('Votre profil', 'Your profile')}</h1>
   <button class="round" style="width:88px;height:88px;background:var(--gold-soft);border:0;color:var(--gold-deep)">${ic('camera', 'style="width:30px;height:30px"')}</button>
   ${fld(L('Prénom et nom', 'Full name'), 'Alain Mukendi', { on: true })}${fld(L('E-mail (facultatif)', 'Email (optional)'), 'alain@email.cd')}
@@ -446,7 +464,9 @@ S.locate = () => `<div class="scr fade"><div class="glow" style="width:460px;hei
 /* home */
 const SERV = () => [['taxi', 'car', 'Taxi', 'dest'], ['moto', 'moto', 'Moto', 'dest'], ['pool', 'pool', L('Covoiturage', 'Carpool'), 'pool'], ['parcel', 'box', L('Colis', 'Parcel'), 'parcel'],
   ['food', 'food', L('Repas', 'Food'), 'food'], ['rental', 'key', L('Location', 'Rental'), 'rental'], ['bus', 'bus', 'Bus', 'bus'], ['more', 'grid', L('Plus', 'More'), 'services']];
-const svcBtn = ([k, i, n, go], hot) => `<button class="${hot ? 'hot' : ''}" data-go="${go}" ${k === 'taxi' || k === 'moto' ? `data-ride="${k}"` : ''}><span class="sq">${ic(i)}</span><span class="n">${n}</span></button>`;
+const ART = { taxi: 'photos/tiles/taxi.jpg', moto: 'photos/tiles/moto.jpg', comfort: 'photos/tiles/confort.jpg', pool: 'photos/tiles/pool.jpg', parcel: 'photos/tiles/parcel_medium.png', rental: 'photos/tiles/premium.jpg', bus: 'photos/tiles/bus.jpg' };
+const VEH_ART = { moto: 'photos/tiles/moto.jpg', taxi: 'photos/tiles/economie.jpg', comfort: 'photos/tiles/confort.jpg' };
+const svcBtn = ([k, i, n, go], hot) => `<button class="${hot ? 'hot' : ''}" data-go="${go}" ${k === 'taxi' || k === 'moto' ? `data-ride="${k}"` : ''}>${ART[k] ? `<span class="sq art"><img src="${ART[k]}" alt=""></span>` : `<span class="sq">${ic(i)}</span>`}<span class="n">${n}</span></button>`;
 S.home = () => `<div class="scr">
   <div class="top"><div class="grow"><div class="small">${L('Bonjour', 'Hello')}</div><div class="h2">Alain</div></div>
     <button class="round" data-go="notifs" aria-label="Notifications">${ic('bell')}</button>
@@ -493,7 +513,7 @@ S.choose = () => { const o = [['moto', 'moto', 'Moto', 6500, 3], ['taxi', 'car',
   const sel = o.find(x => x[0] === st.ride) || o[1];
   return `<div class="scr">${mapTop('<use href="#route"/>')}
   <div class="sheet"><div class="grab"></div><h2 class="h2">${L('Choisissez un trajet', 'Choose a ride')}</h2>
-  <div>${o.map(([k, i, n, p, m]) => `<button class="opt ${k === sel[0] ? 'on' : ''}" data-act="ride" data-v="${k}"><div class="tile">${ic(i)}</div><div class="grow"><div class="h3">${n}</div><div class="small">${m} min</div></div><div class="h3 num">${st.promo ? `<s class="small">${fmt(p)}</s> ` : ''}${cdf(st.promo ? Math.round(p * .8) : p)}</div></button>`).join('')}</div>
+  <div>${o.map(([k, i, n, p, m]) => `<button class="opt ${k === sel[0] ? 'on' : ''}" data-act="ride" data-v="${k}"><div class="tile art"><img src="${VEH_ART[k]}" alt=""></div><div class="grow"><div class="h3">${n}</div><div class="small">${m} min</div></div><div class="h3 num">${st.promo ? `<s class="small">${fmt(p)}</s> ` : ''}${cdf(st.promo ? Math.round(p * .8) : p)}</div></button>`).join('')}</div>
   <div class="row" style="gap:10px"><button class="chip grow" data-go="paypick" style="display:flex;gap:8px;align-items:center;justify-content:center">${ic('wallet', 'style="width:18px;height:18px"')}${payName()}</button><button class="chip grow" data-go="promo" style="display:flex;gap:8px;align-items:center;justify-content:center">${ic('tag', 'style="width:18px;height:18px"')}${st.promo ? 'YALLAH20' : L('Code promo', 'Promo')}</button></div>
   <button class="btn" data-go="${st.when ? 'scheduled' : 'search'}">${L('Confirmer', 'Confirm')} ${sel[2]}</button></div></div>`; };
 S.paypick = () => `<div class="scr">${header(L('Paiement', 'Payment'), { close: true })}<div class="body"><div class="list">${PAYS().map(([k, i, n, s]) => `<button class="li" data-act="pay" data-v="${k}"><div class="tile">${ic(i)}</div><div class="grow"><div class="h3">${n}</div>${s ? `<div class="small">${s}</div>` : ''}</div><span class="radio ${k === st.pay ? 'on' : ''}"></span></button>`).join('')}</div></div>
@@ -558,7 +578,7 @@ S.receipt = () => `<div class="scr">${header(L('Reçu', 'Receipt'))}<div class="
   <div class="foot"><button class="btn ghost" data-go="help">${L('Un problème ?', 'Need help?')}</button></div>${nav('activity')}</div>`;
 
 /* ---------- carpool ---------- */
-S.pool = () => `<div class="scr">${header(L('Covoiturage', 'Carpool'))}<div class="body">${coverImg('pool', L('Partagez la route', 'Share the road'))}
+S.pool = () => `<div class="scr">${header(L('Covoiturage', 'Carpool'))}<div class="body">${coverImg('pool')}
   <div style="display:flex;flex-direction:column;gap:10px"><div class="field">${ic('pin')}Kinshasa</div><div class="field on">${ic('pin', 'style="color:var(--gold-deep)"')}<b>Matadi</b></div></div>
   <div class="fl"><span class="label">Date</span><div class="chips">${[L('Aujourd\'hui', 'Today'), L('Demain', 'Tomorrow'), L('Sam. 24', 'Sat 24')].map((x, i) => `<button class="chip ${i === st.poolDay ? 'on' : ''}" data-act="poolday" data-v="${i}">${x}</button>`).join('')}</div></div>
   <div class="soft row">${ic('user')}<span class="grow">${L('1 passager', '1 passenger')}</span><div class="qty"><button aria-label="-">${ic('minus')}</button><button class="add" aria-label="+">${ic('plus')}</button></div></div></div>
@@ -574,10 +594,10 @@ S.pooldet = () => `<div class="scr">${header(L('Détails du trajet', 'Ride detai
 
 /* ---------- parcel ---------- */
 S.parcel = () => `<div class="scr">${header(L('Envoyer un colis', 'Send a parcel'))}<div class="body">
-  <div class="banner" style="height:120px;cursor:default">${SCENE.parcel}</div>
+  <div class="banner" style="height:auto;aspect-ratio:16/9;cursor:default"><img src="photos/covers/parcel.jpg" alt=""></div>
   <div style="display:flex;flex-direction:column;gap:10px"><div class="field">${ic('pin')}Pullman, Gombe</div><div class="field on">${ic('pin', 'style="color:var(--gold-deep)"')}<b>Silikin Village</b></div></div>
   <div class="fl"><span class="label">${L('Taille', 'Size')}</span><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${[['s', L('Petit', 'Small'), .75], ['m', L('Moyen', 'Medium'), 1], ['l', L('Grand', 'Large'), 1.25]].map(([k, n, z]) =>
-    `<button class="opt ${k === st.size ? 'on' : ''}" data-act="size" data-v="${k}" style="flex-direction:column;gap:8px;padding:14px 6px;background:${k === st.size ? '#fffbf1' : 'var(--card)'};box-shadow:0 0 0 1px var(--line) inset">${ic('box', `style="width:${Math.round(28 * z)}px;height:${Math.round(28 * z)}px"`)}<span class="h3" style="font-size:13.5px">${n}</span></button>`).join('')}</div></div></div>
+    `<button class="opt ${k === st.size ? 'on' : ''}" data-act="size" data-v="${k}" style="flex-direction:column;gap:8px;padding:14px 6px;background:${k === st.size ? '#fffbf1' : 'var(--card)'};box-shadow:0 0 0 1px var(--line) inset"><img src="photos/tiles/parcel_${{ s: 'small', m: 'medium', l: 'large' }[k]}.png" alt="" style="width:${Math.round(58 * z)}px;height:${Math.round(58 * z)}px;object-fit:contain"><span class="h3" style="font-size:13.5px">${n}</span></button>`).join('')}</div></div></div>
   <div class="foot"><button class="btn" data-go="precip">${L('Continuer', 'Continue')}</button></div>${nav('home')}</div>`;
 const parcelPrice = () => ({ s: 4500, m: 6500, l: 9500 }[st.size]);
 S.precip = () => `<div class="scr">${header(L('Destinataire', 'Recipient'))}<div class="body">
